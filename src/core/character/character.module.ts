@@ -4,6 +4,7 @@ import { Subscription } from "rxjs";
 
 import { CharacterController } from "./character.controller";
 import { CharacterService } from "./character.service";
+import { HomeController } from "../home/home.controller";
 
 @scoped(Lifecycle.ContainerScoped)
 export class CharacterModule implements Module {
@@ -12,11 +13,60 @@ export class CharacterModule implements Module {
 	constructor(
 		@inject(CharacterController)
 		private readonly _controller: CharacterController,
+		@inject(HomeController) private readonly _homeController: HomeController,
 		@inject(CharacterService) private readonly _service: CharacterService
 	) {
 		this._subscriptions.push(
 			this._controller.animate$.subscribe(
-				this._service.update.bind(this._service)
+				this._service.updateAnimation.bind(this._service)
+			),
+			this._controller.startWalking$.subscribe(({ path }) =>
+				this._service.startWalking.bind(this._service)(path)
+			),
+			this._controller.walking$.subscribe(
+				this._service.updateWalking.bind(this._service)
+			),
+			this._controller.stopWalking$.subscribe(({ reversed }) =>
+				this._service.stopWalking.bind(this._service)(reversed)
+			),
+			this._homeController.event$.subscribe(
+				this._service.registerEventAction.bind(this._service)
+			),
+			this._controller.performEventAction$.subscribe((val) => {
+				const performedType = this._service.handlePerformEventAction.bind(
+					this._service
+				)(val);
+
+				if (performedType)
+					this._homeController.event$$.next({ type: performedType });
+
+				setTimeout(() => {
+					this._controller.startWalking$$.next({ ...val, reversed: true });
+				}, 1000);
+			}),
+			this._controller.eventActionTrigger$.subscribe(
+				({ type, path, reversed, speedMultiplier, ease }) => {
+					if (
+						this._service.characterIsWalking ||
+						this._service.characterIsInEventAction
+					)
+						return;
+
+					this._service.characterCurrentEventAction = {
+						type,
+						path,
+						speedMultiplier,
+						reversed,
+					};
+
+					this._controller.startWalking$$.next({
+						type,
+						path,
+						reversed,
+						speedMultiplier,
+						ease,
+					});
+				}
 			)
 		);
 	}

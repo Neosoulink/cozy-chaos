@@ -1,4 +1,4 @@
-import { ACESFilmicToneMapping, SRGBColorSpace } from "three";
+import { NoToneMapping, SRGBColorSpace } from "three";
 
 export const DEFAULT_RENDERER_CONFIG = {
 	antialias: true,
@@ -6,6 +6,6 @@ export const DEFAULT_RENDERER_CONFIG = {
 	clearAlpha: 1,
 	clearColor: "#262a2b",
 	outputColorSpace: SRGBColorSpace,
-	toneMapping: ACESFilmicToneMapping,
+	toneMapping: NoToneMapping,
 	toneExposure: 0.5,
 };

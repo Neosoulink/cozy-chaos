@@ -14,6 +14,9 @@ importers:
       '@quick-threejs/utils':
         specifier: ^0.1.18
         version: 0.1.18(three@0.180.0)
+      gsap:
+        specifier: ^3.13.0
+        version: 3.13.0
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
@@ -527,6 +530,9 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  gsap@3.13.0:
+    resolution: {integrity: sha512-QL7MJ2WMjm1PHWsoFrAQH/J8wUeqZvMtHO58qdekHpCfhvhSL4gSiz6vJf5EeMP0LOn3ZCprL2ki/gjED8ghVw==}
 
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
@@ -1175,6 +1181,8 @@ snapshots:
       xtend: 4.0.2
 
   graceful-fs@4.2.11: {}
+
+  gsap@3.13.0: {}
 
   hasown@2.0.2:
     dependencies:

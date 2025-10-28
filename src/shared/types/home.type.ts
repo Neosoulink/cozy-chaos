@@ -1,0 +1,16 @@
+export type HomeEventType =
+	| "acStarted"
+	| "acStopped"
+	| "curtainsClosed"
+	| "curtainsOpened"
+	| "door1Knocked"
+	| "door1KnockedHandled"
+	| "door2Knocked"
+	| "door2KnockedHandled"
+	| "electricityRestored"
+	| "electricityShutdown"
+	| "kitchenFireExtinguished"
+	| "kitchenInFire"
+	| "tvChannelChanged"
+	| "tvCrashed"
+	| "tvRestored";

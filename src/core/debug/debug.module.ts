@@ -4,6 +4,7 @@ import { inject, singleton } from "tsyringe";
 
 import { DebugController } from "./debug.controller";
 import { DebugService } from "./debug.service";
+import { AppModule } from "@quick-threejs/reactive/worker";
 
 @singleton()
 export class DebugModule implements Module {
@@ -11,12 +12,16 @@ export class DebugModule implements Module {
 
 	constructor(
 		@inject(DebugService) private readonly _service: DebugService,
-		@inject(DebugController) private readonly _controller: DebugController
+		@inject(DebugController) private readonly _controller: DebugController,
+		@inject(AppModule) private readonly _app: AppModule
 	) {
 		this._subscriptions.push(
 			this._controller.message$.subscribe(
 				this._service.handlePaneChange.bind(this._service)
-			)
+			),
+			this._app.timer
+				.step$()
+				.subscribe(this._service.update.bind(this._service))
 		);
 	}
 

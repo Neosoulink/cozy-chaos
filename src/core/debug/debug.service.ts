@@ -1,24 +1,37 @@
 import { AppModule } from "@quick-threejs/reactive/worker";
 import {
+	BufferGeometry,
 	ColorManagement,
 	DirectionalLightHelper,
+	Line,
+	LineBasicMaterial,
+	Material,
+	Mesh,
+	MeshBasicMaterial,
+	SphereGeometry,
 	ToneMapping,
 	WebGLRenderer,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import { inject, singleton } from "tsyringe";
 import { WorldService } from "../world/world.service";
+import { CharacterService } from "../character/character.service";
+import { VECTOR_ZERO } from "@/shared/constants/common.constant";
 
 @singleton()
 export class DebugService {
 	private readonly _renderer?: WebGLRenderer;
 	private _directionalLightHelper?: DirectionalLightHelper;
+	private _characterWalkingPathsLines: Record<string, Line> = {};
+	private _characterLookAtIndicator?: Mesh;
 
 	public enabled: boolean;
 
 	constructor(
 		@inject(AppModule) private readonly _app: AppModule,
-		@inject(WorldService) private readonly _worldService: WorldService
+		@inject(WorldService) private readonly _worldService: WorldService,
+		@inject(CharacterService)
+		private readonly _characterService: CharacterService
 	) {
 		this.enabled = this._app.debug.enabled();
 		this._renderer = this._app.renderer.instance();
@@ -43,7 +56,7 @@ export class DebugService {
 		}
 	}
 
-	public resetLightHelpers(): void {
+	public resetWorldDebug(): void {
 		const directionalLight = this._worldService.defaultDirectionalLight;
 		if (directionalLight) {
 			if (this._directionalLightHelper) {
@@ -59,11 +72,45 @@ export class DebugService {
 		}
 	}
 
+	public resetCharacterDebug(): void {
+		if (this._characterWalkingPathsLines) {
+			Object.values(this._characterWalkingPathsLines).forEach((line) => {
+				line.removeFromParent();
+				line.geometry.dispose();
+				if (line.material instanceof Material) line.material.dispose();
+			});
+		}
+
+		Object.entries(this._characterService.walkingPaths).forEach(
+			([name, points]) => {
+				this._characterWalkingPathsLines[name] = new Line(
+					new BufferGeometry().setFromPoints(points.getPoints(50)),
+					new LineBasicMaterial({
+						color: 0xff0000,
+					})
+				);
+			}
+		);
+
+		this._characterLookAtIndicator = new Mesh(
+			new SphereGeometry(0.1, 32, 32),
+			new MeshBasicMaterial({ color: 0x00ff00 })
+		);
+
+		this._app.world
+			.scene()
+			.add(
+				...Object.values(this._characterWalkingPathsLines),
+				this._characterLookAtIndicator
+			);
+	}
+
 	public reset(): void {
 		if (!this.enabled) return;
 
 		this.resetControls();
-		this.resetLightHelpers();
+		this.resetWorldDebug();
+		this.resetCharacterDebug();
 		this._handleEnabledChange(true);
 	}
 
@@ -100,7 +147,7 @@ export class DebugService {
 			ColorManagement.enabled = !!props.value;
 
 		// Light Helpers
-		if (props.type === "lightHelpers-reset") this.resetLightHelpers();
+		if (props.type === "lightHelpers-reset") this.resetWorldDebug();
 
 		// Renderer
 		if (this._renderer instanceof WebGLRenderer) {
@@ -118,5 +165,11 @@ export class DebugService {
 			if (props.type === "renderer-toneExposure")
 				this._renderer.toneMappingExposure = props.value as ToneMapping;
 		}
+	}
+
+	public update() {
+		this._characterLookAtIndicator?.position.copy(
+			this._characterService.character?.userData.lookAt || VECTOR_ZERO
+		);
 	}
 }

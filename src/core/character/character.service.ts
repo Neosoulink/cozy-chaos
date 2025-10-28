@@ -2,42 +2,105 @@ import { AppModule } from "@quick-threejs/reactive/worker";
 import {
 	AnimationAction,
 	AnimationMixer,
+	CatmullRomCurve3,
+	Euler,
 	Group,
 	Material,
 	Mesh,
 	Object3D,
+	Vector3,
 } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
+import { gsap } from "gsap";
 import { inject, Lifecycle, scoped } from "tsyringe";
 
+import type { CharacterWalkingPath } from "@/shared/types/character.type";
+import type { HomeEventType } from "@/shared/types/home.type";
+import type { CharacterEventAction } from "./character.controller";
+import { CHARACTER_WALKING_PATHS } from "@/shared/constants/character.constant";
+import { VECTOR_ZERO } from "@/shared/constants/common.constant";
 import { WorldService } from "../world/world.service";
+import { HomeService } from "../home/home.service";
 
 @scoped(Lifecycle.ContainerScoped)
 export class CharacterService {
 	public model?: GLTF;
-	public scene?: Group;
+	public character?: Group & {
+		userData: Group["userData"] & {
+			lookAt: Vector3;
+			initialPosition: Vector3;
+			initialRotation: Euler;
+		};
+	};
+	public characterEventActionsQueue: {
+		type: HomeEventType;
+		path: CharacterWalkingPath;
+		speedMultiplier?: number;
+		reversed?: boolean;
+	}[] = [];
+	characterCurrentEventAction?: {
+		type: HomeEventType;
+		path: CharacterWalkingPath;
+		speedMultiplier?: number;
+		reversed?: boolean;
+	};
+	public characterIsWalking = false;
+	public characterIsInEventAction = false;
 	public animation?: AnimationMixer;
-	public currentAction?: AnimationAction;
-	public actions: Map<string, AnimationAction> = new Map();
+	public animationActions: Map<string, AnimationAction> = new Map();
+	public animationCurrentAction?: AnimationAction;
+	public walkingPaths: Partial<Record<CharacterWalkingPath, CatmullRomCurve3>> =
+		{};
+	public walkingCurrentPath?: CatmullRomCurve3;
 
 	constructor(
 		@inject(AppModule) private readonly _app: AppModule,
-		@inject(WorldService) private readonly _world: WorldService
-	) {}
+		@inject(WorldService) private readonly _world: WorldService,
+		@inject(HomeService) private readonly _home: HomeService
+	) {
+		this._initWalkingPaths();
+	}
 
-	init(): void {
+	private _initWalkingPaths(): void {
+		CHARACTER_WALKING_PATHS.forEach((path) => {
+			this.walkingPaths[path.name] = new CatmullRomCurve3(
+				[...path.points].reverse().map(({ x, y, z }) => new Vector3(x, y, z)),
+				false,
+				"centripetal",
+				1
+			);
+		});
+	}
+
+	private _initModelCharacter(): void {
 		const resources = this._app.loader.getLoadedResources();
 		const model = resources["character"] as GLTF | undefined;
+		const initialPathKey = Object.keys(this.walkingPaths)[0];
+		const initialPosition =
+			(initialPathKey && this.walkingPaths[initialPathKey]?.getPoint(0)) ||
+			VECTOR_ZERO;
 
 		if (!(model?.scene instanceof Group)) return;
 
 		this.model = model;
-		this.scene = this.model.scene;
-		this.scene.renderOrder = 1;
-		this.scene.traverseVisible((child) => {
+		this.character = this.model.scene as Exclude<
+			CharacterService["character"],
+			undefined
+		>;
+		this.character.userData = {
+			lookAt: VECTOR_ZERO,
+			initialPosition,
+			initialRotation: new Euler(0, Math.PI * 1.5, 0),
+		};
+		this.character.renderOrder = 1;
+		this.character.position.set(
+			initialPosition.x,
+			initialPosition.y,
+			initialPosition.z
+		);
+		this.character.traverseVisible((child) => {
 			if (child instanceof Object3D) {
 				child.castShadow = true;
-				child.receiveShadow = true;
 			}
 
 			if (
@@ -46,37 +109,197 @@ export class CharacterService {
 			)
 				child.material = this._world.defaultMaterial;
 		});
+		this.character.rotation.copy(this.character.userData.initialRotation);
 
-		this._app.world.scene().add(this.scene);
-		this._setupAnimations();
+		this._app.world.scene().add(this.character);
 	}
 
-	private _setupAnimations(): void {
-		if (!this.model || !this.scene) return;
+	private _initAnimations(): void {
+		if (!this.model || !this.character) return;
 
-		this.animation = new AnimationMixer(this.scene);
+		this.animation = new AnimationMixer(this.character);
 
 		this.model.animations.forEach((clip) => {
 			const action = this.animation!.clipAction(clip);
-			this.actions.set(clip.name, action);
+			this.animationActions.set(clip.name, action);
 		});
 
 		this.playAnimation("idle");
 	}
 
+	private _calculateLookAtRotation(from: Vector3, to: Vector3): Euler {
+		const direction = new Vector3().subVectors(to, from).normalize();
+		const yRotation = Math.atan2(direction.x, direction.z) + Math.PI;
+
+		return new Euler(0, yRotation, 0);
+	}
+
+	private _calculateCharacterDistanceFromPosition(position: Vector3): number {
+		if (!this.character) return 0;
+		return this.character.position.distanceTo(position);
+	}
+
+	init(): void {
+		this._initModelCharacter();
+		this._initAnimations();
+	}
+
+	public registerEventAction({ type }: { type: HomeEventType }): void {
+		let path: CharacterWalkingPath | undefined = undefined;
+		let speedMultiplier = 1;
+		let reversed = false;
+
+		switch (type) {
+			case "electricityShutdown":
+				path = "electricity";
+				break;
+			case "tvCrashed":
+				path = "tv";
+				speedMultiplier = 3;
+				break;
+			case "door1Knocked":
+				path = "door-1";
+				break;
+			case "door2Knocked":
+				path = "door-2";
+				break;
+			case "kitchenInFire":
+				path = "kitchen";
+				break;
+			case "acStarted":
+				path = "ac";
+				break;
+			case "curtainsOpened":
+				path = "curtains";
+				speedMultiplier = 3;
+				break;
+		}
+
+		const existingEventAction = this.characterEventActionsQueue.find(
+			(eventAction) => eventAction.type === type
+		);
+
+		if (existingEventAction || !path) return;
+
+		this.characterEventActionsQueue.push({
+			type,
+			path,
+			speedMultiplier,
+			reversed,
+		});
+	}
+
 	public playAnimation(name: string, transitionDuration: number = 0.3): void {
-		const action = this.actions.get(name);
+		const action = this.animationActions.get(name);
 
 		if (!action) return console.warn(`Animation "${name}" not found`);
 
-		if (this.currentAction && this.currentAction !== action)
-			this.currentAction.fadeOut(transitionDuration);
+		if (this.animationCurrentAction && this.animationCurrentAction !== action)
+			this.animationCurrentAction.fadeOut(transitionDuration);
 
 		action.reset().fadeIn(transitionDuration).play();
-		this.currentAction = action;
+		this.animationCurrentAction = action;
 	}
 
-	public update(deltaTime: number): void {
-		if (this.animation) this.animation.update(deltaTime);
+	public startWalking(pathName: string): void {
+		const path = this.walkingPaths[pathName];
+
+		if (!path) return console.warn(`Path "${pathName}" not found`);
+
+		this.walkingCurrentPath = path;
+		this.characterIsWalking = true;
+		this.characterIsInEventAction = true;
+
+		this.playAnimation("Walk");
+	}
+
+	public updateWalking({
+		current,
+		target,
+	}: {
+		current: number;
+		target: number;
+	}): void {
+		if (!this.character) return console.warn("🚧 Character not found");
+		if (!this.walkingCurrentPath)
+			return console.warn("🚧 Walking path not found");
+
+		const ocDoorDistance = 1.15;
+		const distanceFromDoor1 = this._calculateCharacterDistanceFromPosition(
+			this._home.door1?.position || VECTOR_ZERO
+		);
+		const distanceFromDoor2 = this._calculateCharacterDistanceFromPosition(
+			this._home.door2?.position || VECTOR_ZERO
+		);
+
+		this.walkingCurrentPath?.getPointAt(target, this.character.userData.lookAt);
+		this.walkingCurrentPath?.getPointAt(current, this.character.position);
+		this.character.rotation.copy(
+			this._calculateLookAtRotation(
+				this.character.position,
+				this.character.userData.lookAt
+			)
+		);
+
+		if (distanceFromDoor1 <= ocDoorDistance) this._home.openDoor1();
+		if (distanceFromDoor2 <= ocDoorDistance) this._home.openDoor2();
+		if (distanceFromDoor1 > ocDoorDistance) this._home.closeDoor1();
+		if (distanceFromDoor2 > ocDoorDistance) this._home.closeDoor2();
+	}
+
+	public stopWalking(reversed?: boolean): void {
+		this.characterIsWalking = false;
+		this.playAnimation("idle");
+
+		if (reversed) {
+			this.characterIsInEventAction = false;
+			this.characterEventActionsQueue = this.characterEventActionsQueue.filter(
+				(eventAction) =>
+					eventAction.path !== this.characterCurrentEventAction?.path
+			);
+			setTimeout(() => {
+				gsap.to(this.character?.rotation || {}, {
+					y: this.character?.userData.initialRotation.y,
+					duration: 1,
+					ease: "power2.inOut",
+				});
+			}, 100);
+		}
+	}
+
+	public handlePerformEventAction({ type }: CharacterEventAction) {
+		let returnType: HomeEventType | undefined = undefined;
+
+		this.playAnimation("_TPose");
+
+		switch (type) {
+			case "electricityShutdown":
+				returnType = "electricityRestored";
+				break;
+			case "tvCrashed":
+				returnType = "tvRestored";
+				break;
+			case "door1Knocked":
+				returnType = "door1KnockedHandled";
+				break;
+			case "door2Knocked":
+				returnType = "door2KnockedHandled";
+				break;
+			case "kitchenInFire":
+				returnType = "kitchenFireExtinguished";
+				break;
+			case "acStarted":
+				returnType = "acStopped";
+				break;
+			case "curtainsOpened":
+				returnType = "curtainsClosed";
+				break;
+		}
+
+		return returnType;
+	}
+
+	public updateAnimation(delta: number): void {
+		this.animation?.update(delta);
 	}
 }
