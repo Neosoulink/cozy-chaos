@@ -169,7 +169,7 @@ export class DebugService {
 
 	public update() {
 		this._characterLookAtIndicator?.position.copy(
-			this._characterService.character?.userData.lookAt || VECTOR_ZERO
+			this._characterService.character?.userData.lookAt || VECTOR_ZERO.clone()
 		);
 	}
 }

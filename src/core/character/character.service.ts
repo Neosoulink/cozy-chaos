@@ -78,7 +78,7 @@ export class CharacterService {
 		const initialPathKey = Object.keys(this.walkingPaths)[0];
 		const initialPosition =
 			(initialPathKey && this.walkingPaths[initialPathKey]?.getPoint(0)) ||
-			VECTOR_ZERO;
+			VECTOR_ZERO.clone();
 
 		if (!(model?.scene instanceof Group)) return;
 
@@ -88,7 +88,7 @@ export class CharacterService {
 			undefined
 		>;
 		this.character.userData = {
-			lookAt: VECTOR_ZERO,
+			lookAt: VECTOR_ZERO.clone(),
 			initialPosition,
 			initialRotation: new Euler(0, Math.PI * 1.5, 0),
 		};
@@ -226,10 +226,10 @@ export class CharacterService {
 
 		const ocDoorDistance = 1.15;
 		const distanceFromDoor1 = this._calculateCharacterDistanceFromPosition(
-			this._home.door1?.position || VECTOR_ZERO
+			this._home.door1?.position || VECTOR_ZERO.clone()
 		);
 		const distanceFromDoor2 = this._calculateCharacterDistanceFromPosition(
-			this._home.door2?.position || VECTOR_ZERO
+			this._home.door2?.position || VECTOR_ZERO.clone()
 		);
 
 		this.walkingCurrentPath?.getPointAt(target, this.character.userData.lookAt);
