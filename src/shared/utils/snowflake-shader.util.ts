@@ -1,6 +1,6 @@
 import { ShaderMaterial, Texture } from "three";
 
-const vertexShader = `
+const vertexShader = /* glsl */ `
 	varying vec2 vUv;
 	void main() {
 		vUv = uv;
@@ -8,7 +8,7 @@ const vertexShader = `
 	}
 `;
 
-const fragmentShader = `
+const fragmentShader = /* glsl */ `
 	precision mediump float;
 	varying vec2 vUv;
 	uniform float time;

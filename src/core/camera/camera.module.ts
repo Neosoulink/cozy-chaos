@@ -21,12 +21,11 @@ export class CameraModule implements Module {
 				({ angle, position, options }) =>
 					this._service.moveToPosition(angle, position, options)
 			),
-			this._controller.angleChange$.subscribe(({ angle, options }) =>
-				this._service.moveToPositionByAngle(angle, options)
+			this._controller.switchAngle$.subscribe(() =>
+				this._service.switchAngle()
 			),
-			this._controller.positionNumberChange$.subscribe(
-				({ position, options }) =>
-					this._service.moveToPositionByNumber(position, options)
+			this._controller.switchPosition$.subscribe(() =>
+				this._service.switchPosition()
 			),
 			this._app.timer
 				.step$()
@@ -48,10 +47,6 @@ export class CameraModule implements Module {
 
 	init(): void {
 		this._service.init();
-
-		setTimeout(() => {
-			this._controller.changePosition("left", 0);
-		}, 1000);
 	}
 
 	dispose(): void {

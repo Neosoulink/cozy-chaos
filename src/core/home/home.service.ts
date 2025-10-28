@@ -118,12 +118,14 @@ export class HomeService {
 		if (!this.door1 || this.isDoor1Open) return;
 		this.isDoor1Open = true;
 		gsap.fromTo(this.door1.rotation, { y: 0 }, { y: Math.PI * 0.5 });
+		self.postMessage({ token: "door-open" });
 	}
 
 	public closeDoor1(): void {
 		if (!this.door1 || !this.isDoor1Open) return;
 		this.isDoor1Open = false;
 		gsap.fromTo(this.door1.rotation, { y: Math.PI * 0.5 }, { y: 0 });
+		self.postMessage({ token: "door-close" });
 	}
 
 	public openDoor2(): void {
@@ -138,6 +140,7 @@ export class HomeService {
 				},
 			}
 		);
+		self.postMessage({ token: "door-open" });
 	}
 
 	public closeDoor2(): void {
@@ -152,6 +155,7 @@ export class HomeService {
 				},
 			}
 		);
+		self.postMessage({ token: "door-close" });
 	}
 
 	public openCurtain(): void {
@@ -285,6 +289,8 @@ export class HomeService {
 			this.lightSwitch.userData.shutdown = false;
 			this.lightSwitch.userData.vfx = undefined;
 		}
+
+		self.postMessage({ token: "home-event", type });
 	}
 
 	public update({ delta }: { delta: number }) {

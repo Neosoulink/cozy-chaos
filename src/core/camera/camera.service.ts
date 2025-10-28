@@ -13,8 +13,10 @@ import { VECTOR_ZERO } from "@/shared/constants/common.constant";
 
 @scoped(Lifecycle.ContainerScoped)
 export class CameraService {
-	public currentAngle: CameraAngle = "left";
-	public currentPosition: number = 1;
+	public currentAngle: CameraAngle = Math.random() > 0.5 ? "left" : "right";
+	public currentPosition: number = Math.floor(
+		Math.random() * HOME_CAMERA_POSITIONS.length
+	);
 	public isSwitching = false;
 	public isZooming = true;
 	public lookAtTarget = new Vector3();
@@ -51,8 +53,8 @@ export class CameraService {
 	): void {
 		const camera = this._app.camera.instance();
 		const nextPosition = HOME_CAMERA_POSITIONS[position];
-		const nextAngle = angle ? -1 : 1;
-		const { duration = 1.5, ease = "power2.inOut" } = options || {};
+		const nextAngle = angle === "left" ? -1 : 1;
+		const { duration = 0.8, ease = "power2.inOut" } = options || {};
 
 		if (!camera) return console.warn("🚧 Camera not found");
 		if (!nextPosition) return console.warn("🚧 Camera position not found");
@@ -75,18 +77,17 @@ export class CameraService {
 		});
 	}
 
-	public moveToPositionByAngle(
-		angle: CameraAngle,
-		options?: CameraTransitionOptions
-	): void {
-		this.moveToPosition(angle, this.currentPosition, options);
+	public switchAngle(): void {
+		const nextAngle = this.currentAngle === "left" ? "right" : "left";
+		this.moveToPosition(nextAngle, this.currentPosition);
 	}
 
-	public moveToPositionByNumber(
-		position: number,
-		options?: CameraTransitionOptions
-	): void {
-		this.moveToPosition(this.currentAngle, position, options);
+	public switchPosition(): void {
+		const nextPosition =
+			this.currentPosition === HOME_CAMERA_POSITIONS.length - 1
+				? 0
+				: this.currentPosition + 1;
+		this.moveToPosition(this.currentAngle, nextPosition);
 	}
 
 	public zoomIn(): void {

@@ -10,10 +10,6 @@ launchApp({
 		const { module: appModule } = app;
 
 		container.register(AppModule, { useValue: appModule });
-		const coreModule = container.resolve(CoreModule);
-
-		appModule.loader.getLoadCompleted$().subscribe(() => {
-			coreModule.init();
-		});
+		container.resolve(CoreModule);
 	},
 });

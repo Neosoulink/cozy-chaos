@@ -29,10 +29,6 @@ export class HomeModule implements Module {
 
 	init(): void {
 		this._service.init();
-
-		setTimeout(() => {
-			this._controller.event$$.next({ type: "door1Knocked" });
-		}, 1000);
 	}
 
 	dispose(): void {

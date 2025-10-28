@@ -1,0 +1,199 @@
+@import url("https://fonts.googleapis.com/css2?family=DotGothic16&display=swap");
+
+* {
+	box-sizing: border-box;
+	font-family: "DotGothic16", sans-serif;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+	color: #fff;
+	text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+a {
+	color: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.loader-view {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+}
+
+.loader-view .container {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	min-width: 50vw;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 40px;
+}
+
+.loader-view .title {
+	font-size: 60px;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.loader-view button.start-experience {
+	padding: 10px 20px;
+	border: 2px solid #fff;
+	background-color: transparent;
+	color: inherit;
+	border-radius: 10px;
+	cursor: pointer;
+	display: none;
+	font-size: 20px;
+	font-weight: bold;
+	text-transform: uppercase;
+	transition: all 0.3s ease;
+	animation: pulse 2s infinite;
+	transition: all 0.3s ease;
+}
+
+.loader-view.completed button.start-experience {
+	display: block;
+}
+
+.loader-view .spinner {
+	width: 50px;
+	height: 50px;
+	border: 5px solid #fff;
+	border-top: 5px solid #000;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+.loader-view.completed .spinner {
+	display: none;
+}
+
+.loader-view .progress {
+	width: 100%;
+	height: 10px;
+	background-color: #000;
+}
+
+.loader-view .progress-bar {
+	width: 0%;
+	height: 100%;
+	background-color: #fff;
+	transition: all 0.3s ease;
+}
+
+.loader-view .text {
+	text-align: center;
+	text-transform: capitalize;
+}
+
+.loader-view .text-header {
+	font-size: 20px;
+	margin-bottom: 10px;
+}
+
+.loader-view .text-body {
+	font-size: 16px;
+}
+
+.experience-controls button {
+	padding: 10px 20px;
+	border: 2px solid #fff;
+	background-color: rgba(0, 0, 0, 0.4);
+	color: inherit;
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+.experience-controls button:hover {
+	background-color: rgba(0, 0, 0, 0.6);
+	transform: scale(1.05);
+}
+
+.experience-controls .camera {
+	position: fixed;
+	bottom: 30px;
+	left: 30px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.experience-controls .info {
+	position: fixed;
+	bottom: 30px;
+	left: 50%;
+	transform: translateX(-50%);
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+.experience-controls .info p {
+	margin: 0;
+}
+
+.experience-controls .message {
+	position: fixed;
+	bottom: 150px;
+	left: 50%;
+	transform: translateX(-50%);
+	text-align: center;
+	width: 30vw;
+	padding: 10px;
+	background-color: rgba(0, 0, 0, 0.4);
+	border-radius: 10px;
+	border: 2px solid #fff;
+	text-align: center;
+	font-size: 16px;
+	font-weight: bold;
+	color: inherit;
+	transition: all 0.3s ease;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.experience-controls .events {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
+	}
+}

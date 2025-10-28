@@ -271,6 +271,7 @@ export class CharacterService {
 		let returnType: HomeEventType | undefined = undefined;
 
 		this.playAnimation("_TPose");
+		self.postMessage({ token: "character-performed-event", type });
 
 		switch (type) {
 			case "electricityShutdown":

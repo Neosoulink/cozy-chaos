@@ -66,6 +66,8 @@ export class CharacterModule implements Module {
 						speedMultiplier,
 						ease,
 					});
+
+					self.postMessage({ token: "character-event", type });
 				}
 			)
 		);

@@ -1,4 +1,12 @@
-import { map, merge, Observable, share, Subject } from "rxjs";
+import {
+	filter,
+	fromEvent,
+	map,
+	merge,
+	Observable,
+	share,
+	Subject,
+} from "rxjs";
 import { inject, Lifecycle, scoped } from "tsyringe";
 
 import type {
@@ -26,12 +34,19 @@ export interface CameraPositionNumberChangeEvent {
 @scoped(Lifecycle.ContainerScoped)
 export class CameraController {
 	public readonly positionChange$$ = new Subject<CameraPositionChangeEvent>();
-	public readonly angleChange$$ = new Subject<CameraAngleChangeEvent>();
-	public readonly positionNumberChange$$ =
-		new Subject<CameraPositionNumberChangeEvent>();
 	public readonly positionChange$ = this.positionChange$$.pipe(share());
-	public readonly angleChange$ = this.angleChange$$.pipe(share());
-	public readonly positionNumberChange$ = this.positionNumberChange$$.pipe(
+	public readonly switchAngle$ = fromEvent<MessageEvent<any>>(
+		self,
+		"message"
+	).pipe(
+		filter((event) => event.data.type === "switch-camera-angle"),
+		share()
+	);
+	public readonly switchPosition$ = fromEvent<MessageEvent<any>>(
+		self,
+		"message"
+	).pipe(
+		filter((event) => event.data.type === "switch-camera-position"),
 		share()
 	);
 	public readonly zoom$: Observable<{ type: "in" | "out" }>;
@@ -53,19 +68,5 @@ export class CameraController {
 		options?: CameraTransitionOptions
 	): void {
 		this.positionChange$$.next({ angle, position, options });
-	}
-
-	public changeAngle(
-		angle: CameraAngle,
-		options?: CameraTransitionOptions
-	): void {
-		this.angleChange$$.next({ angle, options });
-	}
-
-	public changePositionNumber(
-		position: number,
-		options?: CameraTransitionOptions
-	): void {
-		this.positionNumberChange$$.next({ position, options });
 	}
 }

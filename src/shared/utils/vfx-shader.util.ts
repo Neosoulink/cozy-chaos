@@ -15,7 +15,7 @@ import {
 	Vector3Like,
 } from "three";
 
-const _VS = `
+const _VS = /* glsl */ `
 uniform float pointMultiplier;
 
 attribute float size;
@@ -35,7 +35,7 @@ void main() {
   vColor = aColor;
 }`;
 
-const _FS = `
+const _FS = /* glsl */ `
 uniform sampler2D diffuseTexture;
 
 varying vec4 vColor;
