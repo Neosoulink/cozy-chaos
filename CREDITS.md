@@ -51,6 +51,11 @@ Thanks to [@Imphenzia](https://www.youtube.com/@Imphenzia), and his tutorial [LE
 
 Exclusively using [DotGothic16](https://fonts.google.com/specimen/DotGothic16)
 
+## Softwares
+
+- Modeling: [Blender](https://www.blender.org/)
+- SOund Effect: [GarageBand](https://www.apple.com/mac/garageband/)
+
 ---
 
 Special thanks to [Bruno Simon](https://github.com/brunosimon) amd he's course [threejs-journey](https://threejs-journey.com/) ❤️.
