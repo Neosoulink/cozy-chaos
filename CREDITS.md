@@ -1,8 +1,28 @@
 # Credits and Resources
 
+Here are some useful resources used in this project and credited used assets.
+
+## 3D Engine
+
+[ThreeJS](https://threejs.org/) was primarily used to build this project, alongside [quick-threejs/reactive](https://www.npmjs.com/package/@quick-threejs/reactive), a framework I created to help me quickly build ThreeJS projects.
+
+## Room Inspiration
+
+I literally typed `"Cozy Place"` on Google and picked the first image as a reference.
+
+> [Image Reference](https://images.squarespace-cdn.com/content/v1/60b8d71a4f0ef07e2050c341/fba35ce9-1701-457f-99fb-c5f3179ba9a0/Mobile-edited+%281%29.jpg)
+
 ## Character
 
-Thanks to @Imphenzia, and his tutorial [LEARN LOW POLY Character Modeling](https://www.youtube.com/watch?v=PTWV67qUX2k&t=89s).
+Thanks to [@Imphenzia](https://www.youtube.com/@Imphenzia), and his tutorial [LEARN LOW POLY Character Modeling](https://www.youtube.com/watch?v=PTWV67qUX2k&t=89s).
+
+## Textures
+
+- Default-albedo & Default-emission: [@Imphenzia](https://www.youtube.com/@Imphenzia) [imphenziapalette](https://tinyurl.com/imphenziapalette)
+- Window outside: [Vecteezy](https://static.vecteezy.com/system/resources/thumbnails/049/925/954/large/blurred-night-city-background-with-colored-bokeh-view-of-the-city-from-a-height-out-of-focus-video.jpg)
+- Door 1 outside: [iStock](https://media.istockphoto.com/id/1356768309/video/walking-on-the-empty-dark-corridor-in-slow-motion-120fps.jpg?s=480x480&k=20&c=p1jyiMANei_dwghw0da_2ldlnkFQGj6sREvpXlcKe-k=)
+- Door 2 outside: [Amino](https://pm1.aminoapps.com/7629/23779141d179f93db3fc2674ca6aa4067569f5d5r1-452-679v2_hq.jpg)
+- Breaking News: [Freepik](https://www.freepik.com/search?format=search&last_filter=query&last_value=Breaking+new&query=Breaking+new)
 
 ## SFX
 
@@ -23,10 +43,14 @@ Thanks to @Imphenzia, and his tutorial [LEARN LOW POLY Character Modeling](https
 
 ## VFX
 
-- Particle system by @bobbyroe | <https://github.com/bobbyroe>
-  Original Author: @simondevyoutube | <https://github.com/simondevyoutube>
-  Source: <https://github.com/bobbyroe/Simple-Particle-Effects>
+- Particle system by [@bobbyroe](https://github.com/bobbyroe)
+  Original Author: [@simondevyoutube](https://github.com/simondevyoutube)
+  Source: [Simple-Particle-Effects](https://github.com/bobbyroe/Simple-Particle-Effects)
+
+## Fonts
+
+Exclusively using [DotGothic16](https://fonts.google.com/specimen/DotGothic16)
 
 ---
 
-Special thanks to [Bruno Simon](https://github.com/brunosimon) amd he's course [threejs-journey](https://threejs-journey.com/).
+Special thanks to [Bruno Simon](https://github.com/brunosimon) amd he's course [threejs-journey](https://threejs-journey.com/) ❤️.

@@ -51,7 +51,7 @@ export const createExperienceControls = () => {
 		<div class="info">
 			<p class="text">Hold pointer to zoom in</p>
 
-			<p class="text">Made by <a href="https://github.com/Neosoulink" target="_blank">Neosoulink</a> | <a>Credits</a> | <a>Source Code</a></p>
+			<p class="text">Made by <a href="https://github.com/Neosoulink" target="_blank">Neosoulink</a> | <a href="https://github.com/Neosoulink/cozy-chaos/blob/master/CREDITS.md">Credits</a> | <a href="https://github.com/Neosoulink/cozy-chaos">Source Code</a></p>
 		</div>
 
 		<div class="message"></div>
