@@ -124,7 +124,7 @@ export class CharacterService {
 			this.animationActions.set(clip.name, action);
 		});
 
-		this.playAnimation("idle");
+		this.playAnimation("Idle");
 	}
 
 	private _calculateLookAtRotation(from: Vector3, to: Vector3): Euler {
@@ -152,6 +152,7 @@ export class CharacterService {
 		switch (type) {
 			case "electricityShutdown":
 				path = "electricity";
+				speedMultiplier = 2;
 				break;
 			case "tvCrashed":
 				path = "tv";
@@ -168,6 +169,7 @@ export class CharacterService {
 				break;
 			case "acStarted":
 				path = "ac";
+				speedMultiplier = 2;
 				break;
 			case "curtainsOpened":
 				path = "curtains";
@@ -249,7 +251,7 @@ export class CharacterService {
 
 	public stopWalking(reversed?: boolean): void {
 		this.characterIsWalking = false;
-		this.playAnimation("idle");
+		this.playAnimation("Idle");
 
 		if (reversed) {
 			this.characterIsInEventAction = false;
@@ -270,7 +272,7 @@ export class CharacterService {
 	public handlePerformEventAction({ type }: CharacterEventAction) {
 		let returnType: HomeEventType | undefined = undefined;
 
-		this.playAnimation("_TPose");
+		this.playAnimation("PerformAction");
 		self.postMessage({ token: "character-performed-event", type });
 
 		switch (type) {

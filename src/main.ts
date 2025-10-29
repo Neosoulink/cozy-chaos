@@ -223,6 +223,7 @@ const registerApp = () =>
 				});
 
 			_app.module.loader.getLoadCompleted$().subscribe(() => {
+				const characterName = "JOHN";
 				const progressTextBody = document.querySelector(
 					".loader-view .text-body"
 				) as HTMLDivElement;
@@ -352,20 +353,22 @@ const registerApp = () =>
 							notificationAudio.play();
 
 							if (type === "tvCrashed")
-								showMessage("BOB: Oh no! the TV is broken!");
+								showMessage(`${characterName}: Oh no! the TV is broken!`);
 							if (type === "curtainsOpened")
-								showMessage("BOB: I can see outside, it's cold!");
+								showMessage(`${characterName}: I can see outside, it's cold!`);
 							if (type === "acStarted")
-								showMessage("BOB: It's getting chilly in here!");
+								showMessage(`${characterName}: It's getting chilly in here!`);
 							if (type === "door1Knocked")
-								showMessage("BOB: Who's at the door?");
+								showMessage(`${characterName}: Who's at the door?`);
 							if (type === "door2Knocked")
-								showMessage("BOB: Hummm... Someone in my house?");
+								showMessage(`${characterName}: Hummm... Someone in my house?`);
 							if (type === "kitchenInFire")
-								showMessage("BOB: The kitchen is on fire!!! I need to help!");
+								showMessage(
+									`${characterName}: The kitchen is on fire!!! I need to help!`
+								);
 							if (type === "electricityShutdown")
 								showMessage(
-									"BOB: The lights are out! I need to find a flashlight!"
+									`${characterName}: The lights are out! I need to find a flashlight!`
 								);
 						}
 
@@ -374,14 +377,15 @@ const registerApp = () =>
 							notificationAudio.play();
 
 							if (type === "door1Knocked")
-								showMessage("BOB: Weird... Maybe the wind?");
+								showMessage(`${characterName}: Weird... Maybe the wind?`);
 							if (type === "door2Knocked")
-								showMessage("BOB: I thought I heard someone...");
-							if (type === "tvCrashed") showMessage("BOB: Ouf! It's back on!");
+								showMessage(`${characterName}: I thought I heard someone...`);
+							if (type === "tvCrashed")
+								showMessage(`${characterName}: Ouf! It's back on!`);
 							if (type === "kitchenInFire")
-								showMessage("BOB: The fire is out!");
+								showMessage(`${characterName}: The fire is out!`);
 							if (type === "electricityShutdown")
-								showMessage("BOB: The lights are back on!");
+								showMessage(`${characterName}: The lights are back on!`);
 						}
 
 						if (token === "door-open") {
