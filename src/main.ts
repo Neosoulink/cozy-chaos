@@ -40,7 +40,7 @@ import { HomeEventType } from "./shared/types/home.type";
 
 const isDev = import.meta.env.DEV;
 const location = new URL(
-	`./core/core.worker.${isDev ? "ts" : "js"}`,
+	isDev ? `./core/core.worker.ts` : `worker.js`,
 	import.meta.url
 ) as unknown as string;
 
