@@ -68,7 +68,6 @@ export class HomeService {
 		});
 		this.home.traverseVisible((child) => {
 			if (child instanceof Object3D) {
-				child.castShadow = true;
 				child.receiveShadow = true;
 			}
 
@@ -82,9 +81,7 @@ export class HomeService {
 					if (this.materials.tvScreen)
 						this.tvScreen.material = this.materials.tvScreen;
 				}
-				if (child.name === "Light-switch") {
-					this.lightSwitch = child;
-				}
+				if (child.name === "Light-switch") this.lightSwitch = child;
 				if (child.name === "W-door-1") this.door1 = child;
 				if (child.name === "W-door-1-outside")
 					child.material = this.materials.door1OutsideMaterial;
@@ -107,6 +104,14 @@ export class HomeService {
 					this.wColdIndicator.material = this._world.snowflakeEffect!.material;
 					this.wColdIndicator.visible = false;
 				}
+				if (
+					child.name.startsWith("Roof-lights") ||
+					child.name === "LR-TV-lights" ||
+					child.name === "LR-table-lights" ||
+					child.name === "LR-small-lights" ||
+					child.name === "LR-lamp-light"
+				)
+					child.material = this._world.defaultEmissiveMaterial;
 				if (child.name !== "Merged") child.castShadow = false;
 			}
 		});
@@ -278,6 +283,8 @@ export class HomeService {
 				velocity: { x: 0, y: 0.2, z: 0 },
 			});
 			this._app.world.scene().add(this.lightSwitch.userData.vfx.points);
+
+			this._world.toggleIndoorLighting(false);
 		}
 
 		if (
@@ -288,6 +295,8 @@ export class HomeService {
 			this.lightSwitch.userData.vfx.dispose();
 			this.lightSwitch.userData.shutdown = false;
 			this.lightSwitch.userData.vfx = undefined;
+
+			this._world.toggleIndoorLighting(true);
 		}
 
 		self.postMessage({ token: "home-event", type });

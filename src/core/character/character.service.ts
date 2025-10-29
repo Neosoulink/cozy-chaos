@@ -99,9 +99,7 @@ export class CharacterService {
 			initialPosition.z
 		);
 		this.character.traverseVisible((child) => {
-			if (child instanceof Object3D) {
-				child.castShadow = true;
-			}
+			if (child instanceof Object3D) child.castShadow = true;
 
 			if (
 				child instanceof Mesh &&

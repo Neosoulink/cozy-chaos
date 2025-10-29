@@ -5,10 +5,12 @@ import {
 	Color,
 	ColorManagement,
 	DirectionalLight,
+	DoubleSide,
 	HemisphereLight,
 	LinearFilter,
 	LinearMipMapLinearFilter,
 	MeshStandardMaterial,
+	PointLight,
 	RepeatWrapping,
 	SRGBColorSpace,
 	Texture,
@@ -18,14 +20,24 @@ import { inject, Lifecycle, scoped } from "tsyringe";
 
 import { DEFAULT_RENDERER_CONFIG } from "@/shared/constants/renderer.constant";
 import { createSnowflakeShader } from "@/shared/utils/snowflake-shader.util";
+import { GLTF } from "three/examples/jsm/Addons.js";
 
 @scoped(Lifecycle.ContainerScoped)
 export class WorldService {
+	static readonly DEFAULT_AMBIENT_LIGHT_INTENSITY = 0.4;
+	static readonly DEFAULT_DIRECTIONAL_LIGHT_INTENSITY = 1.5;
+	static readonly DEFAULT_HEMISPHERE_LIGHT_INTENSITY = 1.7;
+	static readonly DEFAULT_CEILING_LIGHT_INTENSITY = 0.5;
+
 	public defaultAmbientLight?: AmbientLight;
 	public defaultDirectionalLight?: DirectionalLight;
 	public defaultHemisphereLight?: HemisphereLight;
 	public defaultMaterial?: MeshStandardMaterial;
+	public defaultEmissiveMaterial?: MeshStandardMaterial;
 	public snowflakeEffect?: ReturnType<typeof createSnowflakeShader>;
+
+	public ceilingLights: PointLight[] = [];
+	public isIndoorLightingEnabled = true;
 	public textures: {
 		defaultAlbedoTexture?: CanvasTexture;
 		defaultEmissionTexture?: CanvasTexture;
@@ -97,17 +109,32 @@ export class WorldService {
 		this._correctTexture(this.textures.tvScreenTexture);
 		this._correctTexture(this.textures.tvScreenBrokenTexture);
 
-		this.defaultAmbientLight = new AmbientLight(0xffffff, 0.3);
-		this.defaultDirectionalLight = new DirectionalLight(0xffffff, 3);
-		this.defaultDirectionalLight.color.setHSL(0.1, 1, 0.95);
-		this.defaultDirectionalLight.position.multiplyScalar(3);
-		this.defaultDirectionalLight.position.set(0, 3, 0);
+		this.defaultAmbientLight = new AmbientLight(
+			0xfff4e6,
+			WorldService.DEFAULT_AMBIENT_LIGHT_INTENSITY
+		);
+		this.defaultDirectionalLight = new DirectionalLight(
+			0xffffff,
+			WorldService.DEFAULT_DIRECTIONAL_LIGHT_INTENSITY
+		);
+		this.defaultDirectionalLight.color.setHSL(0.1, 0.3, 0.8);
 		this.defaultDirectionalLight.castShadow = true;
-		this.defaultDirectionalLight.shadow.mapSize.set(256, 256);
-		this.defaultHemisphereLight = new HemisphereLight(0xffffff, 0xffffff, 2);
-		this.defaultHemisphereLight.color.setHSL(0.6, 1, 0.6);
-		this.defaultHemisphereLight.groundColor.setHSL(0.095, 1, 0.75);
+		this.defaultDirectionalLight.shadow.mapSize.set(512, 512);
+		this.defaultDirectionalLight.shadow.camera.near = 0.1;
+		this.defaultDirectionalLight.shadow.camera.far = 50;
+		this.defaultDirectionalLight.shadow.camera.left = -10;
+		this.defaultDirectionalLight.shadow.camera.right = 10;
+		this.defaultDirectionalLight.shadow.camera.top = 10;
+		this.defaultDirectionalLight.shadow.camera.bottom = -10;
+
+		this.defaultHemisphereLight = new HemisphereLight(
+			0xfff4e6,
+			0x8b7355,
+			WorldService.DEFAULT_HEMISPHERE_LIGHT_INTENSITY
+		);
 		this.defaultHemisphereLight.position.set(0, 3, 0);
+
+		this.createIndoorLighting();
 
 		this.snowflakeEffect = createSnowflakeShader(
 			this.textures.snowflakeTexture
@@ -120,18 +147,74 @@ export class WorldService {
 			emissiveMap: this.textures.defaultEmissionTexture,
 			emissiveIntensity: 100,
 			roughness: 0.9,
-			flatShading: true,
-			// side: DoubleSide,
+			side: DoubleSide,
 		});
 
+		this.defaultEmissiveMaterial = this.defaultMaterial.clone();
+
 		this.reset();
-		this._app.world
-			.scene()
-			.add(
-				this.defaultAmbientLight,
-				this.defaultDirectionalLight,
-				this.defaultHemisphereLight
+		const lights = [
+			this.defaultAmbientLight,
+			this.defaultDirectionalLight,
+			this.defaultHemisphereLight,
+			...this.ceilingLights,
+		].filter(
+			(light): light is NonNullable<typeof light> => light !== undefined
+		);
+
+		this._app.world.scene().add(...lights);
+	}
+
+	private createIndoorLighting(): void {
+		const resources = this._app.loader.getLoadedResources()["home"] as
+			| GLTF
+			| undefined;
+		const homeScene = resources?.scene;
+		const lightPositions =
+			homeScene?.children
+				.filter((child) => child.name.startsWith("Roof-lights"))
+				?.map((child) => child.position.clone().add({ x: 0, y: -0.1, z: 0 })) ||
+			[];
+
+		lightPositions.forEach((position) => {
+			const ceilingLight = new PointLight(
+				0xfff4e6,
+				WorldService.DEFAULT_CEILING_LIGHT_INTENSITY,
+				8
 			);
+			ceilingLight.position.set(position.x, position.y, position.z);
+			ceilingLight.castShadow = true;
+			ceilingLight.shadow.mapSize.set(512, 512);
+			ceilingLight.shadow.camera.near = 0.1;
+			ceilingLight.shadow.camera.far = 12;
+			ceilingLight.shadow.bias = -0.0001;
+
+			this.ceilingLights.push(ceilingLight);
+		});
+	}
+
+	public toggleIndoorLighting(enabled: boolean): void {
+		this.isIndoorLightingEnabled = enabled;
+
+		this.ceilingLights.forEach((light) => {
+			light.intensity = enabled
+				? WorldService.DEFAULT_AMBIENT_LIGHT_INTENSITY
+				: 0;
+		});
+		if (this.defaultAmbientLight)
+			this.defaultAmbientLight.intensity = enabled
+				? WorldService.DEFAULT_AMBIENT_LIGHT_INTENSITY
+				: 0.3;
+		if (this.defaultDirectionalLight)
+			this.defaultDirectionalLight.intensity = enabled
+				? WorldService.DEFAULT_DIRECTIONAL_LIGHT_INTENSITY
+				: 0.3;
+		if (this.defaultHemisphereLight)
+			this.defaultHemisphereLight.intensity = enabled
+				? WorldService.DEFAULT_HEMISPHERE_LIGHT_INTENSITY
+				: 0.3;
+		if (this.defaultEmissiveMaterial)
+			this.defaultEmissiveMaterial.emissiveIntensity = enabled ? 100 : 0;
 	}
 
 	public resetColorManagement(): void {
