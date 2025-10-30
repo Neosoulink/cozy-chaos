@@ -55,16 +55,6 @@ export const createExperienceControls = () => {
 		</div>
 
 		<div class="message"></div>
-
-		<div class="events">
-			<button class="open-curtain">Open Curtain</button>
-			<button class="break-tv">Break TV</button>
-			<button class="turn-on-ac">Turn on AC</button>
-			<button class="turn-off-electricity">Turn off Lights</button>
-			<button class="kitchen-fire">Set Kitchen on Fire</button>
-			<button class="knock-door-1">Knock on Door 1</button>
-			<button class="knock-door-2">Knock on Door 2</button>
-		</div>
 	`;
 
 	const cameraAngleButton = container.querySelector(
@@ -72,27 +62,6 @@ export const createExperienceControls = () => {
 	) as HTMLButtonElement;
 	const cameraPositionButton = container.querySelector(
 		".camera .position"
-	) as HTMLButtonElement;
-	const eventsOpenCurtainButton = container.querySelector(
-		".events .open-curtain"
-	) as HTMLButtonElement;
-	const eventsBreakTVButton = container.querySelector(
-		".events .break-tv"
-	) as HTMLButtonElement;
-	const eventsTurnOnACButton = container.querySelector(
-		".events .turn-on-ac"
-	) as HTMLButtonElement;
-	const eventsTurnOffElectricityButton = container.querySelector(
-		".events .turn-off-electricity"
-	) as HTMLButtonElement;
-	const eventsKitchenFireButton = container.querySelector(
-		".events .kitchen-fire"
-	) as HTMLButtonElement;
-	const eventsKnockDoor1Button = container.querySelector(
-		".events .knock-door-1"
-	) as HTMLButtonElement;
-	const eventsKnockDoor2Button = container.querySelector(
-		".events .knock-door-2"
 	) as HTMLButtonElement;
 
 	const message = container.querySelector(".message") as HTMLDivElement;
@@ -139,13 +108,6 @@ export const createExperienceControls = () => {
 		container,
 		cameraAngleButton,
 		cameraPositionButton,
-		eventsOpenCurtainButton,
-		eventsBreakTVButton,
-		eventsTurnOnACButton,
-		eventsTurnOffElectricityButton,
-		eventsKitchenFireButton,
-		eventsKnockDoor1Button,
-		eventsKnockDoor2Button,
 		message,
 		showMessage,
 	};

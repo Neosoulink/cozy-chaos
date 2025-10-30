@@ -1,6 +1,6 @@
 import { register } from "@quick-threejs/reactive";
 import Stats from "stats.js";
-import { Audio, AudioListener, PositionalAudio } from "three";
+import { Audio, AudioListener, PositionalAudio, Vector3Like } from "three";
 import { Pane } from "tweakpane";
 
 import characterGltfPath from "@/assets/3D/character.glb?url";
@@ -183,7 +183,7 @@ const registerApp = () =>
 			const appThread = _app.module.getThread();
 			const audioListener = new AudioListener();
 
-			if (import.meta.env.DEV) {
+			if (!isDev) {
 				const paneRef = new Pane();
 				const statsRef = new Stats();
 
@@ -315,25 +315,67 @@ const registerApp = () =>
 					gameStartAudio.play();
 					appWorker.postMessage({ type: "start-experience" });
 					removeLoaderView();
-					const {
-						container,
-						cameraAngleButton,
-						cameraPositionButton,
-						eventsOpenCurtainButton,
-						eventsBreakTVButton,
-						eventsTurnOnACButton,
-						eventsTurnOffElectricityButton,
-						eventsKitchenFireButton,
-						eventsKnockDoor1Button,
-						eventsKnockDoor2Button,
-						showMessage,
-					} = createExperienceControls();
+					const { cameraAngleButton, cameraPositionButton, showMessage } =
+						createExperienceControls();
 
 					appWorker.addEventListener("message", (event) => {
-						const { token, type } = event.data as {
+						const { token, type, initHomeEvents, positions } = event.data as {
 							token: string;
 							type: HomeEventType;
+							initHomeEvents: HomeEventType[];
+							positions: {
+								type: HomeEventType;
+								position: Vector3Like;
+								height: number;
+								width: number;
+							}[];
 						};
+
+						if (token === "init-home-event") {
+							initHomeEvents.forEach((event) => {
+								const eventButton = document.createElement("button");
+								eventButton.className = "home-event-button";
+								eventButton.title = event;
+								eventButton.dataset.type = event;
+								eventButton.addEventListener("click", () => {
+									appWorker.postMessage({ token: "home-event", type: event });
+								});
+								document.body.appendChild(eventButton);
+							});
+
+							document.body.querySelectorAll("button").forEach((child) => {
+								if (!(child instanceof HTMLButtonElement)) return;
+								child.addEventListener("mouseenter", () => {
+									menuSelectionAudio.stop();
+									menuSelectionAudio.play();
+								});
+								child.addEventListener("pointerdown", () => {
+									if (
+										child.classList.contains("angle") ||
+										child.classList.contains("position")
+									) {
+										cameraShutterAudio.stop();
+										cameraShutterAudio.play();
+										return;
+									}
+									menuSelection2Audio.stop();
+									menuSelection2Audio.play();
+								});
+							});
+						}
+
+						if (token === "home-event-position") {
+							positions.forEach(({ type, position, height, width }) => {
+								const translateX = position.x * width * 0.5;
+								const translateY = -(position.y * height * 0.5);
+
+								const eventButton = document.querySelector(
+									`button[data-type="${type}"]`
+								) as HTMLButtonElement;
+								if (eventButton)
+									eventButton.style.translate = `${translateX}px ${translateY}px`;
+							});
+						}
 
 						if (token === "home-event") {
 							if (type === "tvCrashed") electricityAudio.play();
@@ -398,26 +440,6 @@ const registerApp = () =>
 						}
 					});
 
-					container.querySelectorAll("button").forEach((child) => {
-						if (!(child instanceof HTMLButtonElement)) return;
-						child.addEventListener("mouseenter", () => {
-							menuSelectionAudio.stop();
-							menuSelectionAudio.play();
-						});
-						child.addEventListener("pointerdown", () => {
-							if (
-								child.classList.contains("angle") ||
-								child.classList.contains("position")
-							) {
-								cameraShutterAudio.stop();
-								cameraShutterAudio.play();
-								return;
-							}
-							menuSelection2Audio.stop();
-							menuSelection2Audio.play();
-						});
-					});
-
 					cameraAngleButton.addEventListener("click", () => {
 						appWorker.postMessage({
 							type: "switch-camera-angle",
@@ -426,41 +448,6 @@ const registerApp = () =>
 					cameraPositionButton.addEventListener("click", () => {
 						appWorker.postMessage({
 							type: "switch-camera-position",
-						});
-					});
-					eventsOpenCurtainButton.addEventListener("click", () => {
-						appWorker.postMessage({
-							type: "curtainsOpened",
-						});
-					});
-					eventsBreakTVButton.addEventListener("click", () => {
-						appWorker.postMessage({
-							type: "tvCrashed",
-						});
-					});
-					eventsTurnOnACButton.addEventListener("click", () => {
-						appWorker.postMessage({
-							type: "acStarted",
-						});
-					});
-					eventsTurnOffElectricityButton.addEventListener("click", () => {
-						appWorker.postMessage({
-							type: "electricityShutdown",
-						});
-					});
-					eventsKitchenFireButton.addEventListener("click", () => {
-						appWorker.postMessage({
-							type: "kitchenInFire",
-						});
-					});
-					eventsKnockDoor1Button.addEventListener("click", () => {
-						appWorker.postMessage({
-							type: "door1Knocked",
-						});
-					});
-					eventsKnockDoor2Button.addEventListener("click", () => {
-						appWorker.postMessage({
-							type: "door2Knocked",
 						});
 					});
 				});

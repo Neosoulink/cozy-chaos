@@ -14,6 +14,7 @@ import { inject, Lifecycle, scoped } from "tsyringe";
 import { WorldService } from "../world/world.service";
 import { HomeEventType } from "@/shared/types/home.type";
 import { createParticleSystem } from "@/shared/utils/vfx-shader.util";
+import { VECTOR_ZERO } from "@/shared/constants/common.constant";
 
 const KITCHEN_POSITION = new Vector3(0.7, 0.9, -5.7);
 
@@ -22,6 +23,7 @@ export class HomeService {
 	public model?: GLTF;
 	public home?: Group;
 	public tvScreen?: Mesh;
+	public acScreen?: Mesh;
 	public lightSwitch?: Mesh;
 	public door1?: Mesh;
 	public door2?: Mesh;
@@ -43,6 +45,67 @@ export class HomeService {
 		@inject(AppModule) private readonly _app: AppModule,
 		@inject(WorldService) private readonly _world: WorldService
 	) {}
+
+	private _postHomeEventPositions(): void {
+		const camera = this._app.camera.instance();
+
+		if (!camera) return;
+
+		const acScreenInfo = {
+			type: "acStarted",
+			position: this.acScreen?.position || VECTOR_ZERO,
+		};
+		const curtainsInfo = {
+			type: "curtainsOpened",
+			position: this.curtain?.position || VECTOR_ZERO,
+		};
+		const tvScreenInfo = {
+			type: "tvCrashed",
+			position: this.tvScreen?.position || VECTOR_ZERO,
+		};
+		const kitchenInfo = { type: "kitchenInFire", position: KITCHEN_POSITION };
+		const lightSwitchInfo = {
+			type: "electricityShutdown",
+			position: this.lightSwitch?.position || VECTOR_ZERO,
+		};
+		const door1Info = {
+			type: "door1Knocked",
+			position:
+				this.door1?.position.clone().add({ x: 0, y: 0, z: -0.5 }) ||
+				VECTOR_ZERO,
+		};
+		const door2Info = {
+			type: "door2Knocked",
+			position:
+				this.door2?.position.clone().add({ x: 0, y: 0, z: -0.5 }) ||
+				VECTOR_ZERO,
+		};
+
+		self.postMessage({
+			token: "home-event-position",
+			positions: [
+				acScreenInfo,
+				curtainsInfo,
+				tvScreenInfo,
+				kitchenInfo,
+				lightSwitchInfo,
+				door1Info,
+				door2Info,
+			].map(({ type, position }) => {
+				const newPosition = position.clone().project(camera);
+				return {
+					type,
+					position: {
+						x: newPosition.x,
+						y: newPosition.y,
+						z: newPosition.z,
+					},
+					height: this._app.sizes.height(),
+					width: this._app.sizes.width(),
+				};
+			}),
+		});
+	}
 
 	init(): void {
 		const resources = this._app.loader.getLoadedResources();
@@ -81,6 +144,7 @@ export class HomeService {
 					if (this.materials.tvScreen)
 						this.tvScreen.material = this.materials.tvScreen;
 				}
+				if (child.name === "AC-controller-screen") this.acScreen = child;
 				if (child.name === "Light-switch") this.lightSwitch = child;
 				if (child.name === "W-door-1") this.door1 = child;
 				if (child.name === "W-door-1-outside")
@@ -114,6 +178,19 @@ export class HomeService {
 					child.material = this._world.defaultEmissiveMaterial;
 				if (child.name !== "Merged") child.castShadow = false;
 			}
+		});
+
+		self.postMessage({
+			token: "init-home-event",
+			initHomeEvents: [
+				"acStarted",
+				"curtainsOpened",
+				"tvCrashed",
+				"electricityShutdown",
+				"kitchenInFire",
+				"door1Knocked",
+				"door2Knocked",
+			] as HomeEventType[],
 		});
 
 		this._app.world.scene().add(this.home);
@@ -307,5 +384,7 @@ export class HomeService {
 		if (this.lightSwitch?.userData.vfx)
 			this.lightSwitch.userData.vfx.step(delta);
 		this.vfxKitchenInFire?.step(delta);
+
+		this._postHomeEventPositions();
 	}
 }

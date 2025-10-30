@@ -17,13 +17,14 @@ I literally typed `"Cozy Place"` on Google and picked the first image as a refer
 
 Thanks to [@Imphenzia](https://www.youtube.com/@Imphenzia), and his tutorial [LEARN LOW POLY Character Modeling](https://www.youtube.com/watch?v=PTWV67qUX2k&t=89s).
 
-## Textures
+## Textures & Images
 
 - **Default-albedo & Default-emission**: [@Imphenzia](https://www.youtube.com/@Imphenzia) [imphenziapalette](https://tinyurl.com/imphenziapalette)
 - **Window outside**: [Vecteezy](https://static.vecteezy.com/system/resources/thumbnails/049/925/954/large/blurred-night-city-background-with-colored-bokeh-view-of-the-city-from-a-height-out-of-focus-video.jpg)
 - **Door 1 outside**: [iStock](https://media.istockphoto.com/id/1356768309/video/walking-on-the-empty-dark-corridor-in-slow-motion-120fps.jpg?s=480x480&k=20&c=p1jyiMANei_dwghw0da_2ldlnkFQGj6sREvpXlcKe-k=)
 - **Door 2 outside**: [Amino](https://pm1.aminoapps.com/7629/23779141d179f93db3fc2674ca6aa4067569f5d5r1-452-679v2_hq.jpg)
 - **Breaking News**: [Freepik](https://www.freepik.com/search?format=search&last_filter=query&last_value=Breaking+new&query=Breaking+new)
+- **Cursor**: [macrovector](https://www.freepik.com/free-vector/pixel-cursors-icon-set_10604092.htm#fromView=search&page=1&position=11&uuid=8a650760-1254-474f-a293-d7cd711a1ccd&query=pixel+cursor)
 
 ## SFX
 
@@ -56,6 +57,7 @@ All sound effects sourced from [Pixabay](https://pixabay.com/) under appropriate
 
 - **[Blender](https://www.blender.org/)** - 3D modeling and asset creation
 - **[GarageBand](https://www.apple.com/mac/garageband/)** - Audio editing and sound effect processing
+- **[Figma](https://www.figma.com/)** - Textures optimization & pixel-art.
 
 ---
 

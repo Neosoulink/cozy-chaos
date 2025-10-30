@@ -90,7 +90,7 @@ export class CharacterController {
 		);
 		this.eventActionTrigger$ = timer(0).pipe(
 			expand(() => {
-				const delays = [2500, 3000, 4000];
+				const delays = [2700, 3000, 3500, 4000];
 				return timer(delays[Math.floor(Math.random() * delays.length)]!);
 			}),
 			map(() => this._service.characterEventActionsQueue[0]!),
