@@ -28,14 +28,16 @@ import fireAudioPath from "@/assets/audios/fire.mp3?url";
 import notificationAudioPath from "@/assets/audios/notification.mp3?url";
 import doorOpenAudioPath from "@/assets/audios/door-open.mp3?url";
 import doorCloseAudioPath from "@/assets/audios/door-close.mp3?url";
+import gameOverAudioPath from "@/assets/audios/game-over.mp3?url";
 
 import { configureTweakpane } from "./shared/utils/tweakpane.util";
 
 import "./assets/styles/global.css";
 import {
-	createExperienceControls,
+	createVolumeControls,
 	createLoaderView,
 	removeLoaderView,
+	createExperienceControls,
 } from "./shared/utils/html.util";
 import { HomeEventType } from "./shared/types/home.type";
 
@@ -178,11 +180,17 @@ const registerApp = () =>
 				path: doorCloseAudioPath,
 				type: "audio",
 			},
+			{
+				name: "game-over-audio",
+				path: gameOverAudioPath,
+				type: "audio",
+			},
 		],
 		onReady: async (_app) => {
 			const appWorker = _app.module.getWorker() as Worker;
 			const appThread = _app.module.getThread();
 			const audioListener = new AudioListener();
+			const { volumeControlButton } = createVolumeControls();
 
 			if (isDev) {
 				const paneRef = new Pane();
@@ -270,6 +278,9 @@ const registerApp = () =>
 				const doorCloseAudioBuffer = _app.module.loader.getLoadedResources()[
 					"door-close-audio"
 				] as AudioBuffer;
+				const gameOverAudioBuffer = _app.module.loader.getLoadedResources()[
+					"game-over-audio"
+				] as AudioBuffer;
 				const gameStartAudio = new Audio(audioListener);
 				const menuSelectionAudio = new Audio(audioListener);
 				const menuSelection2Audio = new Audio(audioListener);
@@ -282,34 +293,68 @@ const registerApp = () =>
 				const notificationAudio = new Audio(audioListener);
 				const doorOpenAudio = new Audio(audioListener);
 				const doorCloseAudio = new Audio(audioListener);
+				const gameOverAudio = new Audio(audioListener);
+
+				const handleEnabledVolumes = (enabled: boolean) => {
+					[
+						gameStartAudio,
+						menuSelectionAudio,
+						menuSelection2Audio,
+						cameraShutterAudio,
+						knockDoorAudio,
+						electricityAudio,
+						winterBreezeAudio,
+						acAudio,
+						fireAudio,
+						notificationAudio,
+						doorOpenAudio,
+						doorCloseAudio,
+						gameOverAudio,
+					].forEach((audio) => {
+						audio.setVolume(
+							Number(enabled ? audio.userData.initialVolume : 0) || 0
+						);
+					});
+				};
 
 				gameStartAudio.setBuffer(gameStartAudioBuffer);
+				gameStartAudio.userData.initialVolume = 1;
 				menuSelectionAudio.setBuffer(menuSelectionAudioBuffer);
-				menuSelectionAudio.setVolume(0.5);
+				menuSelectionAudio.userData.initialVolume = 0.5;
 				menuSelection2Audio.setBuffer(menuSelection2AudioBuffer);
-				menuSelection2Audio.setVolume(0.4);
+				menuSelection2Audio.userData.initialVolume = 0.4;
 				cameraShutterAudio.setBuffer(cameraShutterAudioBuffer);
-				cameraShutterAudio.setVolume(0.5);
+				cameraShutterAudio.userData.initialVolume = 0.5;
 				knockDoorAudio.setBuffer(knockDoorAudioBuffer);
-				knockDoorAudio.setVolume(1);
+				knockDoorAudio.userData.initialVolume = 1;
 				electricityAudio.setBuffer(electricityAudioBuffer);
 				electricityAudio.setLoop(true);
-				electricityAudio.setVolume(0.3);
+				electricityAudio.userData.initialVolume = 0.3;
 				winterBreezeAudio.setBuffer(winterBreezeAudioBuffer);
 				winterBreezeAudio.setLoop(true);
-				winterBreezeAudio.setVolume(0.2);
+				winterBreezeAudio.userData.initialVolume = 0.2;
 				acAudio.setBuffer(acAudioBuffer);
 				acAudio.setLoop(true);
-				acAudio.setVolume(0.05);
+				acAudio.userData.initialVolume = 0.05;
 				fireAudio.setBuffer(fireAudioBuffer);
 				fireAudio.setLoop(true);
-				fireAudio.setVolume(0.12);
+				fireAudio.userData.initialVolume = 0.12;
 				notificationAudio.setBuffer(notificationAudioBuffer);
-				notificationAudio.setVolume(0.7);
+				notificationAudio.userData.initialVolume = 0.7;
 				doorOpenAudio.setBuffer(doorOpenAudioBuffer);
-				doorOpenAudio.setVolume(0.5);
+				doorOpenAudio.userData.initialVolume = 0.5;
 				doorCloseAudio.setBuffer(doorCloseAudioBuffer);
-				doorCloseAudio.setVolume(0.5);
+				doorCloseAudio.userData.initialVolume = 0.5;
+				gameOverAudio.setBuffer(gameOverAudioBuffer);
+				gameOverAudio.userData.initialVolume = 1;
+
+				handleEnabledVolumes(true);
+
+				volumeControlButton.addEventListener("click", () => {
+					const isEnabled = volumeControlButton.dataset.volume === "on";
+					volumeControlButton.dataset.volume = isEnabled ? "off" : "on";
+					handleEnabledVolumes(!isEnabled);
+				});
 
 				startExperienceButton.addEventListener("click", () => {
 					const {
@@ -483,6 +528,8 @@ const registerApp = () =>
 							);
 						}
 						if (token === "game-over") {
+							gameOverAudio.stop();
+							gameOverAudio.play();
 							gameOver.style.display = "flex";
 							gsap.fromTo(
 								gameOver,

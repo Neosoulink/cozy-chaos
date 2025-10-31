@@ -1,5 +1,22 @@
 import { gsap } from "gsap";
 
+export const createVolumeControls = () => {
+	const container = document.createElement("div");
+	container.className = "volume-controls";
+	container.innerHTML = /* html */ `
+		<button class="volume-control" data-volume="on">
+		  <div class="icon"></div>
+		</button>
+	`;
+	document.body.appendChild(container);
+
+	const volumeControlButton = container.querySelector(
+		".volume-control"
+	) as HTMLButtonElement;
+
+	return { container, volumeControlButton };
+};
+
 export const createLoaderView = () => {
 	const loaderView = document.createElement("div");
 	loaderView.className = "loader-view";
