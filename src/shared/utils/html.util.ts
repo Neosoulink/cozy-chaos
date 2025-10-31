@@ -44,8 +44,8 @@ export const createExperienceControls = () => {
 	container.className = "experience-controls";
 	container.innerHTML = /* html */ `
 		<div class="camera">
-			<button class="angle">Switch Camera Angle</button>
-			<button class="position">Switch Camera Position</button>
+			<button class="angle"<span></span></button>
+			<button class="position"><span></span></button>
 		</div>
 
 		<div class="info">

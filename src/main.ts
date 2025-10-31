@@ -416,9 +416,7 @@ const registerApp = () =>
 							if (type === "door1Knocked")
 								showMessage(`${characterName}: Who's at the door?`);
 							if (type === "door2Knocked")
-								showMessage(
-									`${characterName}: Hummm... Is someone in my house?`
-								);
+								showMessage(`${characterName}: Hum... Is someone in my house?`);
 							if (type === "kitchenInFire")
 								showMessage(
 									`${characterName}: The kitchen is on fire!!! HELP!`

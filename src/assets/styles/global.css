@@ -45,7 +45,8 @@ button:hover {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	min-width: 50vw;
+	width: 60vw;
+	max-width: 800px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -54,7 +55,7 @@ button:hover {
 }
 
 .loader-view .title {
-	font-size: 60px;
+	font-size: 90px;
 	text-transform: uppercase;
 	text-align: center;
 }
@@ -69,9 +70,7 @@ button:hover {
 	font-size: 20px;
 	font-weight: bold;
 	text-transform: uppercase;
-	transition: all 0.3s ease;
 	animation: pulse 2s infinite;
-	transition: all 0.3s ease;
 }
 
 .loader-view.completed button.start-experience {
@@ -145,6 +144,28 @@ button:hover {
 	gap: 10px;
 }
 
+.experience-controls .camera button {
+	padding: 30px;
+	border-radius: 100%;
+}
+
+.experience-controls .camera button.angle {
+	background-image: url("../../assets/icons/switch-angle.svg");
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	height: 40px;
+	width: 40px;
+}
+
+.experience-controls .camera button.position {
+	background-image: url("../../assets/icons/switch-position.svg");
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	height: 40px;
+	width: 40px;
+}
 .experience-controls .info {
 	position: fixed;
 	bottom: 30px;
@@ -273,10 +294,61 @@ button:hover {
 	gap: 10px;
 	text-align: center;
 	display: none;
+	padding: 20px;
 }
 
 .game-over .title {
 	font-size: 40px;
+}
+
+@media (max-width: 768px) {
+	.loader-view .container {
+		min-width: 80vw;
+	}
+	.loader-view .title {
+		font-size: 15vw;
+	}
+	.loader-view button.start-experience {
+		padding: 2vw 3vw;
+		font-size: 3vw;
+	}
+	.loader-view .text-header {
+		font-size: 3vw;
+	}
+
+	.loader-view .text-body {
+		font-size: 2.5vw;
+	}
+	.experience-controls .camera {
+		bottom: auto;
+		top: -95vh;
+		left: 20px;
+	}
+	.experience-controls .info {
+		left: 20px;
+		transform: translateX(0%);
+		text-align: left;
+		gap: 10px;
+	}
+
+	.experience-controls .info p {
+		font-size: 3vw;
+	}
+	.experience-controls .message {
+		width: 60vw;
+		padding: 10px;
+		font-size: 3vw;
+	}
+	.chaos-gauge {
+		right: 10px;
+	}
+	.chaos-gauge .chaos-gauge-icon {
+		width: 50px;
+		height: 50px;
+	}
+	.chaos-gauge .chaos-gauge-progress {
+		width: 40px;
+	}
 }
 
 @keyframes spin {
