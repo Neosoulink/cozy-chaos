@@ -183,7 +183,6 @@ const registerApp = () =>
 			const appWorker = _app.module.getWorker() as Worker;
 			const appThread = _app.module.getThread();
 			const audioListener = new AudioListener();
-			const gTimeline = gsap.timeline();
 
 			if (isDev) {
 				const paneRef = new Pane();
@@ -313,10 +312,6 @@ const registerApp = () =>
 				doorCloseAudio.setVolume(0.5);
 
 				startExperienceButton.addEventListener("click", () => {
-					gameStartAudio.stop();
-					gameStartAudio.play();
-					appWorker.postMessage({ type: "start-experience" });
-					removeLoaderView();
 					const {
 						cameraAngleButton,
 						cameraPositionButton,
@@ -328,6 +323,12 @@ const registerApp = () =>
 						restartGameButton,
 						continueButton,
 					} = createExperienceControls();
+					const chaosTriggeredTL = gsap.timeline();
+
+					gameStartAudio.stop();
+					gameStartAudio.play();
+					appWorker.postMessage({ type: "start-experience" });
+					removeLoaderView();
 
 					appWorker.addEventListener("message", (event) => {
 						const { token, type, initHomeEvents, positions } = event.data as {
@@ -374,8 +375,7 @@ const registerApp = () =>
 								});
 							});
 						}
-
-						if (token === "home-event-position") {
+						if (token === "home-event-position")
 							positions.forEach(({ type, position, height, width }) => {
 								const translateX = position.x * width * 0.5;
 								const translateY = -(position.y * height * 0.5);
@@ -386,8 +386,6 @@ const registerApp = () =>
 								if (eventButton)
 									eventButton.style.translate = `${translateX}px ${translateY}px`;
 							});
-						}
-
 						if (token === "home-event") {
 							if (type === "tvCrashed") electricityAudio.play();
 							if (type === "tvRestored") electricityAudio.stop();
@@ -400,7 +398,6 @@ const registerApp = () =>
 							if (type === "kitchenInFire") fireAudio.play();
 							if (type === "kitchenFireExtinguished") fireAudio.stop();
 						}
-
 						if (token === "character-event") {
 							notificationAudio.stop();
 							notificationAudio.play();
@@ -426,7 +423,6 @@ const registerApp = () =>
 									`${characterName}: It's too dark... I can't see anything!`
 								);
 						}
-
 						if (token === "character-performed-event") {
 							notificationAudio.stop();
 							notificationAudio.play();
@@ -444,7 +440,6 @@ const registerApp = () =>
 							if (type === "electricityShutdown")
 								showMessage(`${characterName}: The lights are back on!`);
 						}
-
 						if (token === "door-open") {
 							doorOpenAudio.stop();
 							doorOpenAudio.play();
@@ -454,7 +449,7 @@ const registerApp = () =>
 							doorCloseAudio.play();
 						}
 						if (token === "character-chaos-gauge") {
-							const percentage = event.data.chaosGauge;
+							const percentage = Number(event.data.chaosGauge) || 0;
 							chaosGaugeBar.style.height = `${percentage}%`;
 							chaosGaugeIcon.style.transform = `scale(1.${percentage / 100})`;
 							chaosGauge.dataset.variant =
@@ -465,8 +460,8 @@ const registerApp = () =>
 									: "normal";
 						}
 						if (token === "character-chaos-triggered") {
-							gTimeline.clear();
-							gTimeline
+							chaosTriggeredTL.clear();
+							chaosTriggeredTL
 								.to(chaosGauge, {
 									scale: 1.1,
 									duration: 0.3,
