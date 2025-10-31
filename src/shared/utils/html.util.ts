@@ -55,6 +55,30 @@ export const createExperienceControls = () => {
 		</div>
 
 		<div class="message"></div>
+
+		<div class="chaos-gauge">
+			<div class="chaos-gauge-icon"></div>
+			<div class="chaos-gauge-progress">
+				<div class="chaos-gauge-progress-bar"></div>
+			</div>
+		</div>
+
+		<div class="game-over">
+			<h2 class="title">Game Over</h2>
+			<h3 class="subtitle">Chaos Reached!</h3>
+
+			<p class="description">Congratulation! You have ruined John's day!
+			<br/>Now John is very depressed and he's going to drive his car right after a beer... 🍺</p>
+
+			<div class="controls">
+				<button class="restart-game">Restart Game</button>
+				<button class="continue-game">Continue</button>
+			</div>
+
+			<div class="info">
+				<p class="text">Made by <a href="https://github.com/Neosoulink" target="_blank">Neosoulink</a> | <a href="https://github.com/Neosoulink/cozy-chaos/blob/master/CREDITS.md">Credits</a> | <a href="https://github.com/Neosoulink/cozy-chaos">Source Code</a></p>
+			</div>
+		</div>
 	`;
 
 	const cameraAngleButton = container.querySelector(
@@ -62,6 +86,20 @@ export const createExperienceControls = () => {
 	) as HTMLButtonElement;
 	const cameraPositionButton = container.querySelector(
 		".camera .position"
+	) as HTMLButtonElement;
+	const chaosGauge = container.querySelector(".chaos-gauge") as HTMLDivElement;
+	const chaosGaugeBar = chaosGauge?.querySelector(
+		".chaos-gauge-progress-bar"
+	) as HTMLDivElement;
+	const chaosGaugeIcon = chaosGauge?.querySelector(
+		".chaos-gauge-icon"
+	) as HTMLDivElement;
+	const gameOver = container.querySelector(".game-over") as HTMLDivElement;
+	const restartGameButton = container.querySelector(
+		".restart-game"
+	) as HTMLButtonElement;
+	const continueButton = container.querySelector(
+		".continue-game"
 	) as HTMLButtonElement;
 
 	const message = container.querySelector(".message") as HTMLDivElement;
@@ -110,5 +148,11 @@ export const createExperienceControls = () => {
 		cameraPositionButton,
 		message,
 		showMessage,
+		chaosGauge,
+		chaosGaugeBar,
+		chaosGaugeIcon,
+		gameOver,
+		restartGameButton,
+		continueButton,
 	};
 };

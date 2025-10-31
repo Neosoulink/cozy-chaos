@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import {
 	expand,
 	filter,
+	interval,
 	map,
 	merge,
 	Observable,
@@ -30,7 +31,7 @@ export type CharacterEventAction = {
 export class CharacterController {
 	public readonly startWalking$$ = new Subject<CharacterEventAction>();
 	public readonly stopWalking$$ = new Subject<CharacterEventAction>();
-	public readonly animate$: Observable<number>;
+	public readonly chaosReached$$ = new Subject<void>();
 	public readonly startWalking$: Observable<CharacterEventAction>;
 	public readonly walking$: Observable<{
 		current: number;
@@ -39,15 +40,12 @@ export class CharacterController {
 	public readonly stopWalking$: Observable<CharacterEventAction>;
 	public readonly performEventAction$: Observable<CharacterEventAction>;
 	public readonly eventActionTrigger$: Observable<CharacterEventAction>;
+	public readonly chaosGauge$: Observable<number>;
 
 	constructor(
 		@inject(AppModule) private readonly _app: AppModule,
 		@inject(CharacterService) private readonly _service: CharacterService
 	) {
-		this.animate$ = this._app.timer.step$().pipe(
-			share(),
-			map((step) => step.delta)
-		);
 		this.startWalking$ = merge(this.startWalking$$).pipe(share());
 		this.walking$ = this.startWalking$.pipe(
 			share(),
@@ -95,8 +93,15 @@ export class CharacterController {
 			}),
 			map(() => this._service.characterEventActionsQueue[0]!),
 			filter(
-				(val) => val && this._service.characterEventActionsQueue.length > 0
+				(val) =>
+					((val && this._service.characterEventActionsQueue.length > 0) ||
+						this._service.chaosGaugeReached) &&
+					!this._service.gameOver
 			)
+		);
+		this.chaosGauge$ = interval(100).pipe(
+			share(),
+			takeUntil(this.chaosReached$$)
 		);
 	}
 }

@@ -1,4 +1,5 @@
 import { Module } from "@quick-threejs/reactive";
+import { AppModule } from "@quick-threejs/reactive/worker";
 import { inject, Lifecycle, scoped } from "tsyringe";
 import { Subscription } from "rxjs";
 
@@ -11,15 +12,13 @@ export class CharacterModule implements Module {
 	private readonly _subscriptions: (Subscription | undefined)[] = [];
 
 	constructor(
+		@inject(AppModule) private readonly _app: AppModule,
 		@inject(CharacterController)
 		private readonly _controller: CharacterController,
 		@inject(HomeController) private readonly _homeController: HomeController,
 		@inject(CharacterService) private readonly _service: CharacterService
 	) {
 		this._subscriptions.push(
-			this._controller.animate$.subscribe(
-				this._service.updateAnimation.bind(this._service)
-			),
 			this._controller.startWalking$.subscribe(({ path }) =>
 				this._service.startWalking.bind(this._service)(path)
 			),
@@ -40,6 +39,7 @@ export class CharacterModule implements Module {
 				if (performedType)
 					this._homeController.event$$.next({ type: performedType });
 
+				this._service.updateChaosGauge(-5);
 				setTimeout(() => {
 					this._controller.startWalking$$.next({ ...val, reversed: true });
 				}, 1000);
@@ -48,9 +48,23 @@ export class CharacterModule implements Module {
 				({ type, path, reversed, speedMultiplier, ease }) => {
 					if (
 						this._service.characterIsWalking ||
-						this._service.characterIsInEventAction
+						this._service.characterIsInEventAction ||
+						this._service.gameOver
 					)
 						return;
+
+					if (this._service.chaosGaugeReached) {
+						this._controller.startWalking$$.next({
+							type: "door1Knocked",
+							path: "door-1",
+							reversed: false,
+							speedMultiplier: 1.05,
+							ease: 0.1,
+						});
+						this._service.gameOver = true;
+						self.postMessage({ token: "character-chaos-reached" });
+						return;
+					}
 
 					this._service.characterCurrentEventAction = {
 						type,
@@ -69,7 +83,18 @@ export class CharacterModule implements Module {
 
 					self.postMessage({ token: "character-event", type });
 				}
-			)
+			),
+			this._controller.chaosGauge$.subscribe(() => {
+				const chaosGauge = this._service.updateChaosGauge();
+				if (chaosGauge >= 100) this._controller.chaosReached$$.next();
+				self.postMessage({ token: "character-chaos-gauge", chaosGauge });
+			}),
+			this._controller.chaosReached$$.subscribe(() => {
+				this._service.chaosGaugeReached = true;
+			}),
+			this._app.timer.step$().subscribe(({ delta }) => {
+				this._service.updateAnimation(delta);
+			})
 		);
 	}
 

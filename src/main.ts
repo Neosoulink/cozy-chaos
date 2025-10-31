@@ -1,4 +1,5 @@
 import { register } from "@quick-threejs/reactive";
+import { gsap } from "gsap";
 import Stats from "stats.js";
 import { Audio, AudioListener, PositionalAudio, Vector3Like } from "three";
 import { Pane } from "tweakpane";
@@ -182,8 +183,9 @@ const registerApp = () =>
 			const appWorker = _app.module.getWorker() as Worker;
 			const appThread = _app.module.getThread();
 			const audioListener = new AudioListener();
+			const gTimeline = gsap.timeline();
 
-			if (!isDev) {
+			if (isDev) {
 				const paneRef = new Pane();
 				const statsRef = new Stats();
 
@@ -315,8 +317,17 @@ const registerApp = () =>
 					gameStartAudio.play();
 					appWorker.postMessage({ type: "start-experience" });
 					removeLoaderView();
-					const { cameraAngleButton, cameraPositionButton, showMessage } =
-						createExperienceControls();
+					const {
+						cameraAngleButton,
+						cameraPositionButton,
+						showMessage,
+						chaosGauge,
+						chaosGaugeBar,
+						chaosGaugeIcon,
+						gameOver,
+						restartGameButton,
+						continueButton,
+					} = createExperienceControls();
 
 					appWorker.addEventListener("message", (event) => {
 						const { token, type, initHomeEvents, positions } = event.data as {
@@ -437,6 +448,68 @@ const registerApp = () =>
 						if (token === "door-close") {
 							doorCloseAudio.stop();
 							doorCloseAudio.play();
+						}
+						if (token === "character-chaos-gauge") {
+							const percentage = event.data.chaosGauge;
+							chaosGaugeBar.style.height = `${percentage}%`;
+							chaosGaugeIcon.style.transform = `scale(1.${percentage / 100})`;
+							chaosGauge.dataset.variant =
+								percentage >= 80
+									? "critical"
+									: percentage >= 50
+									? "warning"
+									: "normal";
+						}
+						if (token === "character-chaos-triggered") {
+							gTimeline.clear();
+							gTimeline
+								.to(chaosGauge, {
+									scale: 1.1,
+									duration: 0.3,
+									ease: "power2.out",
+								})
+								.to(chaosGauge, {
+									scale: 1,
+									duration: 0.2,
+									ease: "power2.in",
+								});
+						}
+						if (token === "character-chaos-reached") {
+							chaosGaugeBar.style.height = `100%`;
+							notificationAudio.stop();
+							notificationAudio.play();
+							showMessage(
+								`${characterName}: I can't take it anymore! This is the worst day of my life!`
+							);
+						}
+						if (token === "game-over") {
+							gameOver.style.display = "flex";
+							gsap.fromTo(
+								gameOver,
+								{
+									y: -100,
+									opacity: 0,
+								},
+								{
+									y: 0,
+									opacity: 1,
+									duration: 0.5,
+									ease: "power2.in",
+								}
+							);
+
+							restartGameButton.addEventListener("click", () => {
+								window.location.reload();
+							});
+							continueButton.addEventListener("click", () => {
+								gsap.to(gameOver, {
+									opacity: 0,
+									y: -100,
+									display: "none",
+									duration: 0.5,
+									ease: "power2.out",
+								});
+							});
 						}
 					});
 

@@ -52,6 +52,9 @@ export class CharacterService {
 	public walkingPaths: Partial<Record<CharacterWalkingPath, CatmullRomCurve3>> =
 		{};
 	public walkingCurrentPath?: CatmullRomCurve3;
+	public chaosGauge = 0;
+	public chaosGaugeReached = false;
+	public gameOver = false;
 
 	constructor(
 		@inject(AppModule) private readonly _app: AppModule,
@@ -181,6 +184,7 @@ export class CharacterService {
 
 		if (existingEventAction || !path) return;
 
+		this.updateChaosGauge(15);
 		this.characterEventActionsQueue.push({
 			type,
 			path,
@@ -201,14 +205,14 @@ export class CharacterService {
 		this.animationCurrentAction = action;
 	}
 
-	public startWalking(pathName: string): void {
+	public startWalking(pathName: CharacterWalkingPath): void {
 		const path = this.walkingPaths[pathName];
 
 		if (!path) return console.warn(`Path "${pathName}" not found`);
 
 		this.walkingCurrentPath = path;
 		this.characterIsWalking = true;
-		this.characterIsInEventAction = true;
+		this.characterIsInEventAction = !this.chaosGaugeReached;
 
 		this.playAnimation("Walk");
 	}
@@ -248,6 +252,13 @@ export class CharacterService {
 	}
 
 	public stopWalking(reversed?: boolean): void {
+		if (this.chaosGaugeReached && this.gameOver) {
+			self.postMessage({ token: "game-over" });
+			console.log("game over");
+
+			return;
+		}
+
 		this.characterIsWalking = false;
 		this.playAnimation("Idle");
 
@@ -302,5 +313,12 @@ export class CharacterService {
 
 	public updateAnimation(delta: number): void {
 		this.animation?.update(delta);
+	}
+
+	public updateChaosGauge(step: number = -0.075): number {
+		if (step >= 5) self.postMessage({ token: "character-chaos-triggered" });
+
+		this.chaosGauge = gsap.utils.clamp(0, 200, this.chaosGauge + step);
+		return this.chaosGauge;
 	}
 }
