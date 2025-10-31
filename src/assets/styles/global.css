@@ -157,7 +157,7 @@ button:hover {
 
 .experience-controls {
 	position: sticky;
-	z-index: 9999 !important;
+	z-index: 100 !important;
 }
 
 .experience-controls button {
@@ -328,11 +328,11 @@ button:hover {
 
 .game-over {
 	position: fixed;
-	top: -100dvh;
+	top: -102dvh;
 	bottom: 0;
 	left: 0;
 	width: 100vw;
-	height: 100dvh;
+	height: 102dvh;
 	background-color: #000;
 	flex-direction: column;
 	align-items: center;
