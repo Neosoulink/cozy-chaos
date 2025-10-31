@@ -408,20 +408,24 @@ const registerApp = () =>
 							if (type === "tvCrashed")
 								showMessage(`${characterName}: Oh no! the TV is broken!`);
 							if (type === "curtainsOpened")
-								showMessage(`${characterName}: I can see outside, it's cold!`);
+								showMessage(
+									`${characterName}: I can see the outside, it's cold!`
+								);
 							if (type === "acStarted")
 								showMessage(`${characterName}: It's getting chilly in here!`);
 							if (type === "door1Knocked")
 								showMessage(`${characterName}: Who's at the door?`);
 							if (type === "door2Knocked")
-								showMessage(`${characterName}: Hummm... Someone in my house?`);
+								showMessage(
+									`${characterName}: Hummm... Is someone in my house?`
+								);
 							if (type === "kitchenInFire")
 								showMessage(
-									`${characterName}: The kitchen is on fire!!! I need to help!`
+									`${characterName}: The kitchen is on fire!!! HELP!`
 								);
 							if (type === "electricityShutdown")
 								showMessage(
-									`${characterName}: The lights are out! I need to find a flashlight!`
+									`${characterName}: It's too dark... I can't see anything!`
 								);
 						}
 
@@ -432,11 +436,13 @@ const registerApp = () =>
 							if (type === "door1Knocked")
 								showMessage(`${characterName}: Weird... Maybe the wind?`);
 							if (type === "door2Knocked")
-								showMessage(`${characterName}: I thought I heard someone...`);
+								showMessage(
+									`${characterName}: I thought I heard someone knocking...`
+								);
 							if (type === "tvCrashed")
 								showMessage(`${characterName}: Ouf! It's back on!`);
 							if (type === "kitchenInFire")
-								showMessage(`${characterName}: The fire is out!`);
+								showMessage(`${characterName}: No more fire, we're safe!`);
 							if (type === "electricityShutdown")
 								showMessage(`${characterName}: The lights are back on!`);
 						}
@@ -479,7 +485,8 @@ const registerApp = () =>
 							notificationAudio.stop();
 							notificationAudio.play();
 							showMessage(
-								`${characterName}: I can't take it anymore! This is the worst day of my life!`
+								`${characterName}: I can't take it anymore! This is the worst day of my life!`,
+								5
 							);
 						}
 						if (token === "game-over") {

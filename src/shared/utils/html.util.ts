@@ -104,7 +104,7 @@ export const createExperienceControls = () => {
 
 	const message = container.querySelector(".message") as HTMLDivElement;
 
-	const showMessage = (text: string) => {
+	const showMessage = (text: string, duration: number = 3) => {
 		messageTL.clear();
 		messageTL.fromTo(
 			message,
@@ -117,7 +117,7 @@ export const createExperienceControls = () => {
 						message,
 						{ opacity: 1 },
 						{
-							delay: 3,
+							delay: duration,
 							opacity: 0,
 							duration: 0.3,
 						}
