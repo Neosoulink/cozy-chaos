@@ -55,6 +55,7 @@ export class CharacterService {
 	public chaosGauge = 0;
 	public chaosGaugeReached = false;
 	public gameOver = false;
+	public gsapTimeline = gsap.timeline();
 
 	constructor(
 		@inject(AppModule) private readonly _app: AppModule,
@@ -215,6 +216,7 @@ export class CharacterService {
 		this.characterIsInEventAction = !this.chaosGaugeReached;
 
 		this.playAnimation("Walk");
+		this.gsapTimeline.clear();
 	}
 
 	public updateWalking({
@@ -252,12 +254,8 @@ export class CharacterService {
 	}
 
 	public stopWalking(reversed?: boolean): void {
-		if (this.chaosGaugeReached && this.gameOver) {
-			self.postMessage({ token: "game-over" });
-			console.log("game over");
-
-			return;
-		}
+		if (this.chaosGaugeReached && this.gameOver)
+			return self.postMessage({ token: "game-over" });
 
 		this.characterIsWalking = false;
 		this.playAnimation("Idle");
@@ -269,7 +267,7 @@ export class CharacterService {
 					eventAction.path !== this.characterCurrentEventAction?.path
 			);
 			setTimeout(() => {
-				gsap.to(this.character?.rotation || {}, {
+				this.gsapTimeline.to(this.character?.rotation || {}, {
 					y: this.character?.userData.initialRotation.y,
 					duration: 1,
 					ease: "power2.inOut",

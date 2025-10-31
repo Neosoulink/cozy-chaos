@@ -6,6 +6,7 @@ Here are the resources, assets, and inspiration used in the development of this 
 
 - **[Three.js](https://threejs.org/)** - The primary 3D graphics library powering the entire experience
 - **[@quick-threejs/reactive](https://www.npmjs.com/package/@quick-threejs/reactive)** - A reactive library I built to help me quickly build ThreeJS projects.
+- **[GSAP](https://gsap.com/)** - Animation engine.
 
 ## Room Inspiration
 
