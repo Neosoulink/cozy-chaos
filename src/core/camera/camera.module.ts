@@ -34,6 +34,9 @@ export class CameraModule implements Module {
 				if (type === "in") this._service.zoomIn();
 				else this._service.zoomOut();
 			}),
+			this._controller.lockCamera$.subscribe((locked) => {
+				this._service.cameraLocked = locked;
+			}),
 			this._app
 				.mousemove$?.()
 				.subscribe(({ height, width, clientX, clientY }) => {

@@ -50,6 +50,13 @@ export class CameraController {
 		share()
 	);
 	public readonly zoom$: Observable<{ type: "in" | "out" }>;
+	public readonly lockCamera$ = fromEvent<
+		MessageEvent<{ token: "lock-camera"; data: boolean }>
+	>(self, "message").pipe(
+		filter((event) => event.data.token === "lock-camera"),
+		map((event) => !!event.data.data),
+		share()
+	);
 
 	constructor(@inject(AppModule) private readonly _app: AppModule) {
 		this.zoom$ = merge(

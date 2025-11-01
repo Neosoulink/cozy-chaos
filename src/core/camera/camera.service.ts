@@ -23,6 +23,7 @@ export class CameraService {
 	public lookAtCurrent = new Vector3();
 	public cursorPositionTarget = new Vector2();
 	public cursorPositionCurrent = new Vector2();
+	public cameraLocked = false;
 
 	constructor(
 		@inject(AppModule) private readonly _app: AppModule,
@@ -132,20 +133,19 @@ export class CameraService {
 	}
 
 	public update() {
-		const characterPosition =
-			this._characterService.character?.position || VECTOR_ZERO.clone();
 		const camera = this._app.camera.instance() as PerspectiveCamera;
+		const characterPosition = this._characterService.character?.position;
+		const lookAt =
+			this.cameraLocked ?? (characterPosition && characterPosition.x <= -2.3)
+				? VECTOR_ZERO
+				: characterPosition || VECTOR_ZERO;
 
 		this.cursorPositionCurrent.lerp(this.cursorPositionTarget, 0.03);
-		this.lookAtTarget
-			.copy(
-				characterPosition.x <= -2.3 ? VECTOR_ZERO.clone() : characterPosition
-			)
-			.add({
-				x: 0 + this.cursorPositionCurrent.x * 0.8,
-				y: 1 + this.cursorPositionCurrent.y * -0.8,
-				z: 0,
-			});
+		this.lookAtTarget.set(lookAt.x, lookAt.y, lookAt.z).add({
+			x: 0 + this.cursorPositionCurrent.x * 0.8,
+			y: 1 + this.cursorPositionCurrent.y * -0.8,
+			z: 0,
+		});
 		this.lookAtCurrent.lerp(this.lookAtTarget, 0.03);
 
 		if (camera) camera.lookAt(this.lookAtCurrent);

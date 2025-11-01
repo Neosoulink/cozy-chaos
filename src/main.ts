@@ -360,6 +360,7 @@ const registerApp = () =>
 					const {
 						cameraAngleButton,
 						cameraPositionButton,
+						cameraLockButton,
 						showMessage,
 						chaosGauge,
 						chaosGaugeBar,
@@ -568,6 +569,14 @@ const registerApp = () =>
 					cameraPositionButton.addEventListener("click", () => {
 						appWorker.postMessage({
 							type: "switch-camera-position",
+						});
+					});
+					cameraLockButton.addEventListener("click", () => {
+						const isEnabled = cameraLockButton.dataset.locked === "true";
+						cameraLockButton.dataset.locked = isEnabled ? "false" : "true";
+						appWorker.postMessage({
+							token: "lock-camera",
+							data: !isEnabled,
 						});
 					});
 				});

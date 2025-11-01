@@ -187,8 +187,7 @@ button:hover {
 	border-radius: 100%;
 }
 
-.experience-controls .camera button.angle {
-	background-image: url("../../assets/icons/switch-angle.svg");
+.experience-controls .camera button {
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -196,13 +195,19 @@ button:hover {
 	width: 40px;
 }
 
+.experience-controls .camera button.angle {
+	background-image: url("../../assets/icons/switch-angle.svg");
+}
+
 .experience-controls .camera button.position {
 	background-image: url("../../assets/icons/switch-position.svg");
-	background-size: contain;
-	background-repeat: no-repeat;
-	background-position: center;
-	height: 40px;
-	width: 40px;
+}
+
+.experience-controls .camera button.lock {
+	background-image: url("../../assets/icons/camera-locked.svg");
+}
+.experience-controls .camera button.lock[data-locked="true"] {
+	background-image: url("../../assets/icons/camera-unlocked.svg");
 }
 .experience-controls .info {
 	position: fixed;

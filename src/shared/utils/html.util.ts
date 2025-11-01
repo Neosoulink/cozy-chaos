@@ -63,6 +63,7 @@ export const createExperienceControls = () => {
 		<div class="camera">
 			<button class="angle"<span></span></button>
 			<button class="position"><span></span></button>
+			<button class="lock"><span></span></button>
 		</div>
 
 		<div class="info">
@@ -103,6 +104,9 @@ export const createExperienceControls = () => {
 	) as HTMLButtonElement;
 	const cameraPositionButton = container.querySelector(
 		".camera .position"
+	) as HTMLButtonElement;
+	const cameraLockButton = container.querySelector(
+		".camera .lock"
 	) as HTMLButtonElement;
 	const chaosGauge = container.querySelector(".chaos-gauge") as HTMLDivElement;
 	const chaosGaugeBar = chaosGauge?.querySelector(
@@ -163,6 +167,7 @@ export const createExperienceControls = () => {
 		container,
 		cameraAngleButton,
 		cameraPositionButton,
+		cameraLockButton,
 		message,
 		showMessage,
 		chaosGauge,
