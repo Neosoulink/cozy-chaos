@@ -136,7 +136,7 @@ export class CameraService {
 		const camera = this._app.camera.instance() as PerspectiveCamera;
 		const characterPosition = this._characterService.character?.position;
 		const lookAt =
-			this.cameraLocked ?? (characterPosition && characterPosition.x <= -2.3)
+			this.cameraLocked || (characterPosition && characterPosition.x <= -2.3)
 				? VECTOR_ZERO
 				: characterPosition || VECTOR_ZERO;
 
