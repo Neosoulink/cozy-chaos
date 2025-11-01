@@ -42,7 +42,7 @@ export class CharacterModule implements Module {
 				this._service.updateChaosGauge(-5);
 				setTimeout(() => {
 					this._controller.startWalking$$.next({ ...val, reversed: true });
-				}, 1000);
+				}, 800);
 			}),
 			this._controller.eventActionTrigger$.subscribe(
 				({ type, path, reversed, speedMultiplier, ease }) => {

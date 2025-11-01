@@ -123,6 +123,10 @@ export class CharacterService {
 
 		this.model.animations.forEach((clip) => {
 			const action = this.animation!.clipAction(clip);
+			if (clip.name === "PerformAction") {
+				action.repetitions = 0;
+				action.clampWhenFinished = true;
+			}
 			this.animationActions.set(clip.name, action);
 		});
 
@@ -148,34 +152,37 @@ export class CharacterService {
 
 	public registerEventAction({ type }: { type: HomeEventType }): void {
 		let path: CharacterWalkingPath | undefined = undefined;
-		let speedMultiplier = 1;
+		let speedMultiplier = 1 + Math.random() * 0.5;
 		let reversed = false;
 
 		switch (type) {
 			case "electricityShutdown":
 				path = "electricity";
-				speedMultiplier = 2;
+				speedMultiplier += 1 + (this.chaosGauge / 100) * 3;
 				break;
 			case "tvCrashed":
 				path = "tv";
-				speedMultiplier = 3;
+				speedMultiplier += 2 + (this.chaosGauge / 100) * 4;
 				break;
 			case "door1Knocked":
 				path = "door-1";
+				speedMultiplier += 0.5 + (this.chaosGauge / 100) * 1.5;
 				break;
 			case "door2Knocked":
 				path = "door-2";
+				speedMultiplier += (this.chaosGauge / 100) * 1.1;
 				break;
 			case "kitchenInFire":
 				path = "kitchen";
+				speedMultiplier += this.chaosGauge / 100;
 				break;
 			case "acStarted":
 				path = "ac";
-				speedMultiplier = 2;
+				speedMultiplier += 1 + (this.chaosGauge / 100) * 3;
 				break;
 			case "curtainsOpened":
 				path = "curtains";
-				speedMultiplier = 3;
+				speedMultiplier += 2 + (this.chaosGauge / 100) * 4;
 				break;
 		}
 
@@ -310,7 +317,9 @@ export class CharacterService {
 	}
 
 	public updateAnimation(delta: number): void {
-		this.animation?.update(delta);
+		this.animation?.update(
+			delta * (this.chaosGaugeReached ? 1 : (this.chaosGauge / 100) * 2 + 1)
+		);
 	}
 
 	public updateChaosGauge(step: number = -0.075): number {
